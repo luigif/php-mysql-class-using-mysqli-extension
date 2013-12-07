@@ -14,3 +14,4 @@ print_r($result);
 
 echo 'Last query was : ' . $db -> last_query() . ' <br>';
 echo 'Affected row :' . $db->affected_rows;
+
