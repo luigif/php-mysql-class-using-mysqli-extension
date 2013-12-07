@@ -7,6 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2012
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ * @version   1.0.1
  **/
 
 class Database
@@ -34,6 +35,8 @@ class Database
 	var $_limit;
 	var $_offset;
 	var $_result;
+	var $error = '';
+	var $debug = TRUE;
 
 	/**
 	 * The table name used as FROM
@@ -52,7 +55,9 @@ class Database
 		// Get the default port number if not given.
 		if ($port == NULL)
 			$port = ini_get('mysqli.default_port');
-		$this -> _mysqli = new mysqli($host, $username, $password, $db, $port) or die('There was a problem connecting to the database');
+		$this -> _mysqli = @new mysqli($host, $username, $password, $db, $port);
+		if (!$this -> _mysqli)
+			die($this -> oops('There was a problem connecting to the database'));
 		$this -> _mysqli -> set_charset('utf8');
 		self::$_instance = $this;
 	}
@@ -62,7 +67,7 @@ class Database
 	 */
 	public function __destruct()
 	{
-		$this -> _mysqli -> close();
+		@$this -> _mysqli -> close();
 	}
 
 	/**
@@ -237,7 +242,7 @@ class Database
 			if (count($this -> array_select > 0))
 			{
 				$this -> _query = "SELECT ";
-				if ($this -> array_select == '*' OR count($this -> array_select) == 0 )
+				if ($this -> array_select == '*' OR count($this -> array_select) == 0)
 				{
 					$this -> _query .= '*';
 				}
@@ -259,22 +264,21 @@ class Database
 			}
 
 		}
-			// Write the "LIMIT" portion of the query
-			if ($this -> _limit > 0)
-			{
-				$this -> _query .= ' LIMIT ' . $this -> _limit;
-			}
-			
-			// Write the "OFFSET" portion of the query
-			if ( isset($this-> _offset )) 
-			{
-				$this -> _query .= ' ' . $this->_offset ; 
-			}
-			
-			return $this ;
-			
-	
+		// Write the "LIMIT" portion of the query
+		if ($this -> _limit > 0)
+		{
+			$this -> _query .= ' LIMIT ' . $this -> _limit;
 		}
+
+		// Write the "OFFSET" portion of the query
+		if (isset($this -> _offset))
+		{
+			$this -> _query .= ' ' . $this -> _offset;
+		}
+
+		return $this;
+
+	}
 
 	/**
 	 * Execute the query. This function returns the object. For getting the result of the execution use fetch();
@@ -283,7 +287,10 @@ class Database
 	public function execute()
 	{
 		$this -> prepare();
-		$this -> _result = $this -> _mysqli -> query($this -> _query) OR mysqli_error($this -> _mysqli);
+		$this -> _result = $this -> _mysqli -> query($this -> _query);
+		if (!$this -> _result)
+			$this -> oops();
+
 		$this -> affected_rows = $this -> _mysqli -> affected_rows;
 		return $this;
 	}
@@ -295,10 +302,18 @@ class Database
 	 */
 	public function fetch()
 	{
-		if ($this -> _limit == 1)
-			return $this -> _result -> fetch_array(MYSQLI_ASSOC);
+		if (is_object($this -> _result))
+		{
+			if ($this -> _limit == 1)
+				return $this -> _result -> fetch_array(MYSQLI_ASSOC);
+			else
+				return $this -> _result -> fetch_all(MYSQLI_ASSOC);
+		}
 		else
-			return $this -> _result -> fetch_all(MYSQLI_ASSOC);
+		{
+			$this -> oops('Unable to perform fetch()');
+		}
+
 	}
 
 	/**
@@ -438,6 +453,33 @@ class Database
 
 		}
 
+	}
+
+	private function oops($msg = null)
+	{
+		// If debug is not enabled, do not proceed
+		if (!$this -> debug)
+			return;
+
+		if (!$msg)
+		{
+			$msg = 'MySQL Error has occured';
+		}
+		$this -> error = mysqli_error($this -> _mysqli);
+		
+		echo '<table align="center" border="1" cellspacing="0" style="background:white;color:black;width:80%;">
+		<tr><th colspan=2>Database Error</th></tr>
+		<tr><td align="right" valign="top">Message:</td><td> ' . $msg . '</td></tr> ';
+
+		if (!empty($this -> error))
+			echo '<tr><td align="right" valign="top" nowrap>MySQL Error:</td><td>' . $this -> error . '</td></tr>';
+		echo '<tr><td align="right">Date:</td><td>' . date("l, F j, Y \a\\t g:i:s A") . '</td></tr>';
+		echo '<tr><td align="right">Query:</td><td>' . $this -> _query . '</td></tr>';
+		echo '</table>';
+		
+		unset($this->error) ;
+
+		//die();
 	}
 
 }
