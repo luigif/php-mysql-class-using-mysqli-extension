@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2012
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.0.1
+ * @version   1.0.11
  **/
 
 class Database
@@ -336,7 +336,7 @@ class Database
 	{
 		if (get_magic_quotes_runtime())
 			$string = stripslashes($string);
-		return @mysql_real_escape_string($string);
+		return @$this -> _mysqli -> real_escape_string($string);
 	}
 
 	/**
@@ -466,7 +466,7 @@ class Database
 			$msg = 'MySQL Error has occured';
 		}
 		$this -> error = mysqli_error($this -> _mysqli);
-		
+
 		echo '<table align="center" border="1" cellspacing="0" style="background:white;color:black;width:80%;">
 		<tr><th colspan=2>Database Error</th></tr>
 		<tr><td align="right" valign="top">Message:</td><td> ' . $msg . '</td></tr> ';
@@ -476,8 +476,8 @@ class Database
 		echo '<tr><td align="right">Date:</td><td>' . date("l, F j, Y \a\\t g:i:s A") . '</td></tr>';
 		echo '<tr><td align="right">Query:</td><td>' . $this -> _query . '</td></tr>';
 		echo '</table>';
-		
-		unset($this->error) ;
+
+		unset($this -> error);
 
 		//die();
 	}
