@@ -574,5 +574,19 @@ class Database
 		return $this;
 	}
 	
+	/**
+	 * SELECT_SUM Portion of the query
+	 *
+	 * Writes a "SELECT SUM(field)" portion for your query. You can optionally
+	 * include a second parameter to rename the resulting field.
+	 */
+
+	public function select_sum($field, $name = null)
+	{
+		$this -> array_select[0] = "SUM($field) ";
+		if ($name)
+			$this -> array_select[0] .= "AS $name ";
+		return $this;
+	}
 
 }
