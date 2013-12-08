@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.0.11
+ * @version   1.0.12
  **/
 
 class Database
@@ -37,6 +37,7 @@ class Database
 	var $_result;
 	var $error = '';
 	var $debug = TRUE;
+	var $_last_query = '';
 
 	/**
 	 * The table name used as FROM
@@ -84,6 +85,18 @@ class Database
 	}
 
 	/**
+	 * Reset function after execution
+	 *
+	 */
+	private function reset()
+	{
+		unset($this -> _query);
+		$this -> array_like = array();
+		$this -> array_select = array();
+		$this -> array_where = array();
+	}
+
+	/**
 	 * Sets a limit and offset clause. Offset is optional
 	 *
 	 * @uses $db->limit(0,12); // Will list the first 12 rows
@@ -113,8 +126,10 @@ class Database
 	}
 
 	/**
-	 * Executes a raw query. This is same as query() function but it returns only the first row as result.
-	 * @uses $db->query_first("SELECT * FROM table"); // Will product "SELECT * FROM table LIMIT 1"
+	 * Executes a raw query. This is same as query() function but it returns only the
+	 * first row as result.
+	 * @uses $db->query_first("SELECT * FROM table"); // Will product "SELECT * FROM
+	 * table LIMIT 1"
 	 * @return object Returns the object. Use $db->fetch() to get the results array
 	 */
 
@@ -140,7 +155,8 @@ class Database
 
 	/**
 	 * Sets the OR WHERE clause
-	 * This function is identical to where() function except that multiple instances are joined by OR
+	 * This function is identical to where() function except that multiple instances
+	 * are joined by OR
 	 * @param $key array Can either be string or array.
 	 * @param $value string Optional. Need only if $key is a string..
 	 *
@@ -190,7 +206,8 @@ class Database
 	/**
 	 * The SELECT portion of the query.
 	 *
-	 * @param $select Can either be a string or an array containing the columns to be selected. If none provided, * will be assigned by default
+	 * @param $select Can either be a string or an array containing the columns to be
+	 * selected. If none provided, * will be assigned by default
 	 * @uses $db->select("id, email, password") ;
 	 * @uses $db->select(array('id', 'email', 'password')) ;
 	 */
@@ -233,7 +250,8 @@ class Database
 	{
 
 		/**
-		 * We need to process $this->_query only if the user has not given a _query string.
+		 * We need to process $this->_query only if the user has not given a _query
+		 * string.
 		 */
 
 		if (!isset($this -> _query))
@@ -281,7 +299,8 @@ class Database
 	}
 
 	/**
-	 * Execute the query. This function returns the object. For getting the result of the execution use fetch();
+	 * Execute the query. This function returns the object. For getting the result of
+	 * the execution use fetch();
 	 */
 
 	public function execute()
@@ -292,11 +311,15 @@ class Database
 			$this -> oops();
 
 		$this -> affected_rows = $this -> _mysqli -> affected_rows;
+		$this->_last_query = $this->_query ;
+		
+		$this->reset() ;
 		return $this;
 	}
 
 	/**
-	 * Fetches the result of an execution. Must be called only after calling execute()
+	 * Fetches the result of an execution. Must be called only after calling
+	 * execute()
 	 *
 	 * @return array Returns an Associate Array of results.
 	 */
@@ -317,13 +340,14 @@ class Database
 	}
 
 	/**
-	 * This function returns the last build query. Useful for troubleshooting the code.
+	 * This function returns the last build query. Useful for troubleshooting the
+	 * code.
 	 *
 	 * @return string Last query, exmaple : "SELECT * FROM table"
 	 */
 	public function last_query()
 	{
-		return $this -> _query;
+		return $this -> _last_query;
 	}
 
 	/**
@@ -343,7 +367,8 @@ class Database
 	 * Inserts data into table.
 	 *
 	 * @param string $table Name of the table
-	 * @param array $data The array which contains the coulumn name and values to be inserted.
+	 * @param array $data The array which contains the coulumn name and values to be
+	 * inserted.
 	 *
 	 * @return integer Returns the inserted id. ( mysqli->insert_id)
 	 */
@@ -394,9 +419,12 @@ class Database
 	/**
 	 * Permits to write the LIKE portion of the query using the connector AND
 	 *
-	 * @param $title string or array Can either be a string or array. This is the title portion of LIKE
-	 * @param $match string Required only if $title is a string. This is the matching portion
-	 * @param $place string This enables you to control where the wildcard (%) is placed. Options are "both", "before", and "after". Default is "both"
+	 * @param $title string or array Can either be a string or array. This is the
+	 * title portion of LIKE
+	 * @param $match string Required only if $title is a string. This is the matching
+	 * portion
+	 * @param $place string This enables you to control where the wildcard (%) is
+	 * placed. Options are "both", "before", and "after". Default is "both"
 	 */
 
 	public function like($title, $match = null, $place = 'both')
@@ -409,9 +437,12 @@ class Database
 	/**
 	 * Permits to write the LIKE portion of the query using the connector OR
 	 *
-	 * @param $title string or array Can either be a string or array. This is the title portion of LIKE
-	 * @param $match string Required only if $title is a string. This is the matching portion
-	 * @param $place string This enables you to control where the wildcard (%) is placed. Options are "both", "before", and "after". Default is "both"
+	 * @param $title string or array Can either be a string or array. This is the
+	 * title portion of LIKE
+	 * @param $match string Required only if $title is a string. This is the matching
+	 * portion
+	 * @param $place string This enables you to control where the wildcard (%) is
+	 * placed. Options are "both", "before", and "after". Default is "both"
 	 */
 
 	public function or_like($title, $match = null, $place = 'both')
