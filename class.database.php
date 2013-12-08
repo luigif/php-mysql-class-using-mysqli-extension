@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.1
+ * @version   1.1.1
  **/
 
 class Database
@@ -51,6 +51,7 @@ class Database
 	var $array_where = array();
 	var $array_select = array();
 	var $array_like = array();
+	var $array_wherein = array();
 
 	public function __construct($host, $username, $password, $db, $port = NULL)
 	{
@@ -538,12 +539,12 @@ class Database
 
 	public function select_max($field, $name = null)
 	{
-		if($name == null)
-			$name = $field ;
-		$this -> array_select[0] = "MAX($field) AS $name ";		
+		if ($name == null)
+			$name = $field;
+		$this -> array_select[0] = "MAX($field) AS $name ";
 		return $this;
 	}
-	
+
 	/**
 	 * SELECT_MIN Portion of the query
 	 *
@@ -553,14 +554,13 @@ class Database
 
 	public function select_min($field, $name = null)
 	{
-		if($name == null)
-			$name = $field ;
-		$this -> array_select[0] = "MIN($field) AS $name ";		
+		if ($name == null)
+			$name = $field;
+		$this -> array_select[0] = "MIN($field) AS $name ";
 		return $this;
-		
-		
+
 	}
-	
+
 	/**
 	 * SELECT_AVG Portion of the query
 	 *
@@ -570,13 +570,13 @@ class Database
 
 	public function select_avg($field, $name = null)
 	{
-		if($name == null)
-			$name = $field ;
-		$this -> array_select[0] = "AVG($field) AS $name ";		
+		if ($name == null)
+			$name = $field;
+		$this -> array_select[0] = "AVG($field) AS $name ";
 		return $this;
-		
+
 	}
-	
+
 	/**
 	 * SELECT_SUM Portion of the query
 	 *
@@ -586,11 +586,73 @@ class Database
 
 	public function select_sum($field, $name = null)
 	{
-		if($name == null)
-			$name = $field ;
-		$this -> array_select[0] = "SUM($field) AS $name ";		
+		if ($name == null)
+			$name = $field;
+		$this -> array_select[0] = "SUM($field) AS $name ";
 		return $this;
-		
+
+	}
+
+	/**
+	 * WHERE IN
+	 */
+
+	public function where_in($key = NULL, $values = NULL)
+	{
+		return $this -> _where_in($key, $values);
+	}
+
+	/**
+	 * WHERE OR
+	 */
+
+	public function or_where_in($key = NULL, $values = NULL)
+	{
+		return $this -> _where_in($key, $values, FALSE, 'OR ');
+	}
+
+	/**
+	 * WHERE NOT IN
+	 */
+
+	public function where_not_in($key = NULL, $values = NULL)
+	{
+		return $this -> _where_in($key, $values, TRUE);
+	}
+
+	/**
+	 * WHERE NOT IN OR
+	 */
+	public function or_where_not_in($key = NULL, $values = NULL)
+	{
+		return $this -> _where_in($key, $values, TRUE, 'OR ');
+	}
+
+	/**
+	 * WHERE IN process
+	 *
+	 * Called by where_in, where_in_or, where_not_in, where_not_in_or
+	 */
+	protected function _where_in($key = NULL, $values = NULL, $not = FALSE, $type = 'AND ')
+	{
+		if ($key === NULL OR $values === NULL)
+		{
+			return;
+		}
+		if (!is_array($values))
+		{
+			$values = array($values);
+		}
+		$not = ($not) ? ' NOT' : '';
+		foreach ($values as $value)
+		{
+			$this -> array_wherein[] = "'" . $this -> escape($value) . "'";
+		}
+		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$where_in = $prefix . $key . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
+		$this -> array_where[] = $where_in;
+		$this -> array_wherein = array();
+		return $this;
 	}
 
 }
