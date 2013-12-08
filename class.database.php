@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.0.12
+ * @version   1.0.13
  **/
 
 class Database
@@ -38,6 +38,7 @@ class Database
 	var $error = '';
 	var $debug = TRUE;
 	var $_last_query = '';
+	var $_executed = FALSE;
 
 	/**
 	 * The table name used as FROM
@@ -311,9 +312,10 @@ class Database
 			$this -> oops();
 
 		$this -> affected_rows = $this -> _mysqli -> affected_rows;
-		$this->_last_query = $this->_query ;
-		
-		$this->reset() ;
+		$this -> _last_query = $this -> _query;
+
+		$this -> reset();
+		$this -> _executed = TRUE;
 		return $this;
 	}
 
@@ -325,8 +327,13 @@ class Database
 	 */
 	public function fetch()
 	{
+		if ($this -> _executed == FALSE)
+			$this -> execute();
+
 		if (is_object($this -> _result))
 		{
+			$this -> _executed = FALSE;
+
 			if ($this -> _limit == 1)
 				return $this -> _result -> fetch_array(MYSQLI_ASSOC);
 			else
@@ -334,6 +341,7 @@ class Database
 		}
 		else
 		{
+
 			$this -> oops('Unable to perform fetch()');
 		}
 
