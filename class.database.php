@@ -335,9 +335,17 @@ class Database
 			$this -> _executed = FALSE;
 
 			if ($this -> _limit == 1)
-				return $this -> _result -> fetch_array(MYSQLI_ASSOC);
+				$results = $this -> _result -> fetch_array(MYSQLI_ASSOC);
 			else
-				return $this -> _result -> fetch_all(MYSQLI_ASSOC);
+				$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
+
+			// For better result
+			if (count($results) == 1)
+			{
+				$result = $results[0];
+				return $result;
+			}
+			return $results;
 		}
 		else
 		{
@@ -519,6 +527,21 @@ class Database
 		unset($this -> error);
 
 		//die();
+	}
+
+	/**
+	 * SELECT_MAX Portion of the query
+	 *
+	 * Writes a "SELECT MAX(field)" portion for your query. You can optionally
+	 * include a second parameter to rename the resulting field.
+	 */
+
+	public function select_max($field, $name = null)
+	{
+		$this -> array_select[0] = "MAX($field) ";
+		if ($name)
+			$this -> array_select[0] .= "AS $name ";
+		return $this;
 	}
 
 }
