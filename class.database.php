@@ -543,5 +543,21 @@ class Database
 			$this -> array_select[0] .= "AS $name ";
 		return $this;
 	}
+	
+	/**
+	 * SELECT_MIN Portion of the query
+	 *
+	 * Writes a "SELECT MIN(field)" portion for your query. You can optionally
+	 * include a second parameter to rename the resulting field.
+	 */
+
+	public function select_min($field, $name = null)
+	{
+		$this -> array_select[0] = "MIN($field) ";
+		if ($name)
+			$this -> array_select[0] .= "AS $name ";
+		return $this;
+	}
+	
 
 }
