@@ -538,9 +538,9 @@ class Database
 
 	public function select_max($field, $name = null)
 	{
-		$this -> array_select[0] = "MAX($field) ";
-		if ($name)
-			$this -> array_select[0] .= "AS $name ";
+		if($name == null)
+			$name = $field ;
+		$this -> array_select[0] = "MAX($field) AS $name ";		
 		return $this;
 	}
 	
@@ -553,10 +553,12 @@ class Database
 
 	public function select_min($field, $name = null)
 	{
-		$this -> array_select[0] = "MIN($field) ";
-		if ($name)
-			$this -> array_select[0] .= "AS $name ";
+		if($name == null)
+			$name = $field ;
+		$this -> array_select[0] = "MIN($field) AS $name ";		
 		return $this;
+		
+		
 	}
 	
 	/**
@@ -568,10 +570,11 @@ class Database
 
 	public function select_avg($field, $name = null)
 	{
-		$this -> array_select[0] = "AVG($field) ";
-		if ($name)
-			$this -> array_select[0] .= "AS $name ";
+		if($name == null)
+			$name = $field ;
+		$this -> array_select[0] = "AVG($field) AS $name ";		
 		return $this;
+		
 	}
 	
 	/**
@@ -583,10 +586,11 @@ class Database
 
 	public function select_sum($field, $name = null)
 	{
-		$this -> array_select[0] = "SUM($field) ";
-		if ($name)
-			$this -> array_select[0] .= "AS $name ";
+		if($name == null)
+			$name = $field ;
+		$this -> array_select[0] = "SUM($field) AS $name ";		
 		return $this;
+		
 	}
 
 }
