@@ -559,5 +559,20 @@ class Database
 		return $this;
 	}
 	
+	/**
+	 * SELECT_AVG Portion of the query
+	 *
+	 * Writes a "SELECT AVG(field)" portion for your query. You can optionally
+	 * include a second parameter to rename the resulting field.
+	 */
+
+	public function select_avg($field, $name = null)
+	{
+		$this -> array_select[0] = "AVG($field) ";
+		if ($name)
+			$this -> array_select[0] .= "AS $name ";
+		return $this;
+	}
+	
 
 }
