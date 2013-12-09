@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.1.2
+ * @version   1.1.3
  **/
 
 class Database
@@ -54,6 +54,7 @@ class Database
 	var $array_wherein = array();
 	var $array_groupby = array();
 	var $array_having = array();
+	var $array_orderby = array();
 
 	public function __construct($host, $username, $password, $db, $port = NULL)
 	{
@@ -313,6 +314,15 @@ class Database
 			$this -> _query .= "\nHAVING ";
 			$this -> _query .= implode("\n", $this -> array_having);
 		}
+		
+		// Write the "ORDER BY" portion of the query
+
+		if (count($this->array_orderby) > 0)
+		{
+			$this -> _query .= "\nORDER BY ";
+			$this -> _query .= implode(', ', $this->array_orderby);
+		}
+		
 
 		// Write the "LIMIT" portion of the query
 		if ($this -> _limit > 0)
@@ -769,6 +779,36 @@ class Database
 			$this -> array_having[] = $prefix . $k . $v;
 		}
 		return $this;
+	}
+
+	/**
+	 * ORDER By clause
+	 */
+
+	public function order_by($orderby, $direction = null)
+	{
+		// If custom order by is given
+		if (!is_array($orderby) AND is_null($direction))
+		{
+			$this -> array_orderby[0] = $orderby;
+			return $this;
+		}
+		// If $orderby is an array the we ignore the value of $direction
+		
+		if (is_array($orderby))
+		{
+				foreach($orderby as $key => $value) 
+				{
+					$this->order_by($key, $value) ;
+				}
+		}
+		else 
+		{
+			$direction = strtoupper($direction) ;
+			$this -> array_orderby[] = "$orderby $direction" ;
+		}
+		return $this; 
+
 	}
 
 }
