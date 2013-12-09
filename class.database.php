@@ -52,6 +52,8 @@ class Database
 	var $array_select = array();
 	var $array_like = array();
 	var $array_wherein = array();
+	var $array_groupby = array();
+	var $array_having = array();
 
 	public function __construct($host, $username, $password, $db, $port = NULL)
 	{
@@ -284,6 +286,34 @@ class Database
 			}
 
 		}
+
+		// Like portion
+
+		if (count($this -> array_like) > 0)
+		{
+			if (count($this -> array_where) > 0)
+			{
+				$this -> _query .= "\nAND ";
+			}
+			$this -> _query .= implode("\n", $this -> array_like);
+		}
+
+		// Write the "GROUP BY" portion of the query
+
+		if (count($this -> array_groupby) > 0)
+		{
+			$this -> _query .= "\nGROUP BY ";
+			$this -> _query .= implode(', ', $this -> array_groupby);
+		}
+
+		// Write the "HAVING" portion of the query
+
+		if (count($this -> array_having) > 0)
+		{
+			$this -> _query .= "\nHAVING ";
+			$this -> _query .= implode("\n", $this -> array_having);
+		}
+
 		// Write the "LIMIT" portion of the query
 		if ($this -> _limit > 0)
 		{
@@ -652,6 +682,92 @@ class Database
 		$where_in = $prefix . $key . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
 		$this -> array_where[] = $where_in;
 		$this -> array_wherein = array();
+		return $this;
+	}
+
+	/**
+	 * Group by
+	 *
+	 * @param string or array $by Either an arry
+	 */
+
+	public function group_by($by)
+	{
+		if (is_string($by))
+		{
+			$by = explode(',', $by);
+		}
+
+		foreach ($by as $val)
+		{
+			$val = trim($val);
+
+			if ($val != '')
+			{
+				$this -> array_groupby[] = $val;
+			}
+		}
+		return $this;
+
+	}
+
+	/**
+	 * Sets the HAVING value
+	 *
+	 * Separates multiple calls with AND
+	 *
+	 * @param	string
+	 * @param	string
+	 * @return	object
+	 */
+	public function having($key, $value = '')
+	{
+		return $this -> _having($key, $value, 'AND ');
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Sets the OR HAVING value
+	 *
+	 * Separates multiple calls with OR
+	 *
+	 * @param	string
+	 * @param	string
+	 * @return	object
+	 */
+	public function or_having($key, $value = '')
+	{
+		return $this -> _having($key, $value, 'OR ');
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Sets the HAVING values
+	 *
+	 * Called by having() or or_having()
+	 *
+	 * @param	string
+	 * @param	string
+	 * @return	object
+	 */
+	protected function _having($key, $value = '', $type = 'AND ')
+	{
+		if (!is_array($key))
+		{
+			$key = array($key => $value);
+		}
+		foreach ($key as $k => $v)
+		{
+			$prefix = (count($this -> array_having) == 0) ? '' : $type;
+
+			if ($v != '')
+			{
+				$v = " = '" . $this -> escape($v) . "'";
+			}
+			$this -> array_having[] = $prefix . $k . $v;
+		}
 		return $this;
 	}
 
