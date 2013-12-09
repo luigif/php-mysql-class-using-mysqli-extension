@@ -39,6 +39,7 @@ class Database
 	var $debug = TRUE;
 	var $_last_query = '';
 	var $_executed = FALSE;
+	var $_delete = FALSE;
 
 	/**
 	 * The table name used as FROM
@@ -275,6 +276,11 @@ class Database
 				}
 			}
 
+			// If delete() is set, then the function is a delete function.
+
+			if ($this -> _delete == TRUE)
+				$this -> _query = 'DELETE';
+
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
 				$this -> _query .= " FROM $this->_fromTable ";
@@ -314,15 +320,14 @@ class Database
 			$this -> _query .= "\nHAVING ";
 			$this -> _query .= implode("\n", $this -> array_having);
 		}
-		
+
 		// Write the "ORDER BY" portion of the query
 
-		if (count($this->array_orderby) > 0)
+		if (count($this -> array_orderby) > 0)
 		{
 			$this -> _query .= "\nORDER BY ";
-			$this -> _query .= implode(', ', $this->array_orderby);
+			$this -> _query .= implode(', ', $this -> array_orderby);
 		}
-		
 
 		// Write the "LIMIT" portion of the query
 		if ($this -> _limit > 0)
@@ -794,20 +799,41 @@ class Database
 			return $this;
 		}
 		// If $orderby is an array the we ignore the value of $direction
-		
+
 		if (is_array($orderby))
 		{
-				foreach($orderby as $key => $value) 
-				{
-					$this->order_by($key, $value) ;
-				}
+			foreach ($orderby as $key => $value)
+			{
+				$this -> order_by($key, $value);
+			}
 		}
-		else 
+		else
 		{
-			$direction = strtoupper($direction) ;
-			$this -> array_orderby[] = "$orderby $direction" ;
+			$direction = strtoupper($direction);
+			$this -> array_orderby[] = "$orderby $direction";
 		}
-		return $this; 
+		return $this;
+
+	}
+
+	/**
+	 * Delete function
+	 *
+	 * @param string $table Name of the table from where the values to be deleted. It
+	 * is optional. If value is not given then the value set by from() will be taken
+	 */
+
+	public function delete($table = null)
+	{
+		if ($table)
+			$this -> from($table);
+
+		if ($this -> _fromTable == null)
+			$this -> oops('Table Name is required for delete function');
+		else
+			$this -> _delete = TRUE;
+		
+		return $this ;
 
 	}
 
