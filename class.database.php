@@ -37,6 +37,7 @@ class Database
 	var $_result;
 	var $error = '';
 	var $debug = TRUE;
+	var $die_on_error = TRUE ; // Script execution will stop if set to TRUE. Default is TRUE ;
 	var $_last_query = '';
 	var $_executed = FALSE;
 	var $_delete = FALSE;
@@ -571,8 +572,8 @@ class Database
 		echo '</table>';
 
 		unset($this -> error);
-
-		//die();
+		if($this->die_on_error == TRUE )
+		die();
 	}
 
 	/**
