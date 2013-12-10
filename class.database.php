@@ -37,7 +37,8 @@ class Database
 	var $_result;
 	var $error = '';
 	var $debug = TRUE;
-	var $die_on_error = TRUE ; // Script execution will stop if set to TRUE. Default is TRUE ;
+	var $die_on_error = TRUE;
+	// Script execution will stop if set to TRUE. Default is TRUE ;
 	var $_last_query = '';
 	var $_executed = FALSE;
 	var $_delete = FALSE;
@@ -264,7 +265,7 @@ class Database
 		if (!isset($this -> _query))
 		{
 			// Write the "SELECT" portion of the query
-			if (count($this -> array_select > 0))
+			if (!empty($this -> array_select))
 			{
 				$this -> _query = "SELECT ";
 				if ($this -> array_select == '*' OR count($this -> array_select) == 0)
@@ -280,7 +281,14 @@ class Database
 			// If delete() is set, then the function is a delete function.
 
 			if ($this -> _delete == TRUE)
+			{
+				// If the query is to delete row(s), make sure we have the table name.
+				if ($this -> _fromTable == null)
+				{
+					$this -> oops('Table Name is required for delete function');
+				}
 				$this -> _query = 'DELETE';
+			}
 
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
@@ -297,9 +305,9 @@ class Database
 
 		// Like portion
 
-		if (count($this -> array_like) > 0)
+		if (!empty($this -> array_like))
 		{
-			if (count($this -> array_where) > 0)
+			if (!empty($this -> array_where))
 			{
 				$this -> _query .= "\nAND ";
 			}
@@ -308,7 +316,7 @@ class Database
 
 		// Write the "GROUP BY" portion of the query
 
-		if (count($this -> array_groupby) > 0)
+		if (!empty($this -> array_groupby))
 		{
 			$this -> _query .= "\nGROUP BY ";
 			$this -> _query .= implode(', ', $this -> array_groupby);
@@ -316,7 +324,7 @@ class Database
 
 		// Write the "HAVING" portion of the query
 
-		if (count($this -> array_having) > 0)
+		if (!empty($this -> array_having))
 		{
 			$this -> _query .= "\nHAVING ";
 			$this -> _query .= implode("\n", $this -> array_having);
@@ -324,7 +332,7 @@ class Database
 
 		// Write the "ORDER BY" portion of the query
 
-		if (count($this -> array_orderby) > 0)
+		if (!empty($this -> array_orderby))
 		{
 			$this -> _query .= "\nORDER BY ";
 			$this -> _query .= implode(', ', $this -> array_orderby);
@@ -573,8 +581,8 @@ class Database
 		echo '</table>';
 
 		unset($this -> error);
-		if($this->die_on_error == TRUE )
-		die();
+		if ($this -> die_on_error == TRUE)
+			die();
 	}
 
 	/**
@@ -829,13 +837,8 @@ class Database
 	{
 		if ($table)
 			$this -> from($table);
-
-		if ($this -> _fromTable == null)
-			$this -> oops('Table Name is required for delete function');
-		else
-			$this -> _delete = TRUE;
-		
-		return $this ;
+		$this -> _delete = TRUE;
+		return $this;
 
 	}
 
