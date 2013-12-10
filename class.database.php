@@ -568,7 +568,8 @@ class Database
 		if (!empty($this -> error))
 			echo '<tr><td align="right" valign="top" nowrap>MySQL Error:</td><td>' . $this -> error . '</td></tr>';
 		echo '<tr><td align="right">Date:</td><td>' . date("l, F j, Y \a\\t g:i:s A") . '</td></tr>';
-		echo '<tr><td align="right">Query:</td><td>' . $this -> _query . '</td></tr>';
+		if (!empty($this -> _query))
+			echo '<tr><td align="right">Query:</td><td>' . $this -> _query . '</td></tr>';
 		echo '</table>';
 
 		unset($this -> error);
