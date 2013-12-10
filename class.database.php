@@ -379,8 +379,7 @@ class Database
 	}
 
 	/**
-	 * Fetches the result of an execution. Must be called only after calling
-	 * execute()
+	 * Fetches the result of an execution.
 	 *
 	 * @return array Returns an Associate Array of results.
 	 */
