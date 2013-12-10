@@ -42,6 +42,7 @@ class Database
 	var $_last_query = '';
 	var $_executed = FALSE;
 	var $_delete = FALSE;
+	var $prefix;
 
 	/**
 	 * The table name used as FROM
@@ -246,7 +247,10 @@ class Database
 	 */
 	public function from($table)
 	{
-		$this -> _fromTable = $table;
+		if(isset($this->prefix)) 
+			$this->_fromTable = $this->prefix . $table ; 
+		else 
+			$this -> _fromTable = $table;
 		return $this;
 	}
 
@@ -446,6 +450,9 @@ class Database
 
 	public function insert($table, $data)
 	{
+		if(isset($this->prefix)) 
+			$table = $this->prefix . $table ;
+		
 		foreach ($data as $key => $value)
 		{
 			$keys[] = $key;
@@ -469,6 +476,9 @@ class Database
 
 	public function update($table, $data)
 	{
+		if(isset($this->prefix)) 
+			$table = $this->prefix . $table ;
+		
 		foreach ($data as $key => $val)
 		{
 			if (strpos($val, '()') == true)
