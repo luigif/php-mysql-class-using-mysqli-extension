@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.1.5
+ * @version   1.1.6
  **/
 
 class Database
@@ -247,9 +247,9 @@ class Database
 	 */
 	public function from($table)
 	{
-		if(isset($this->table_prefix)) 
-			$this->_fromTable = $this->table_prefix . $table ; 
-		else 
+		if (isset($this -> table_prefix))
+			$this -> _fromTable = $this -> table_prefix . $table;
+		else
 			$this -> _fromTable = $table;
 		return $this;
 	}
@@ -292,6 +292,12 @@ class Database
 					$this -> oops('Table Name is required for delete function');
 				}
 				$this -> _query = 'DELETE';
+			}
+
+			// If select() is not called but the call is a SELECT statement
+			if ($this -> _delete == FALSE && empty($this -> array_select))
+			{
+				$this -> _query = 'SELECT *';
 			}
 
 			// Write the "FROM" portion of the query
@@ -449,9 +455,9 @@ class Database
 
 	public function insert($table, $data)
 	{
-		if(isset($this->table_prefixfix)) 
-			$table = $this->table_prefix . $table ;
-		
+		if (isset($this -> table_prefixfix))
+			$table = $this -> table_prefix . $table;
+
 		foreach ($data as $key => $value)
 		{
 			$keys[] = $key;
@@ -475,9 +481,9 @@ class Database
 
 	public function update($table, $data)
 	{
-		if(isset($this->table_prefix)) 
-			$table = $this->table_prefix . $table ;
-		
+		if (isset($this -> table_prefix))
+			$table = $this -> table_prefix . $table;
+
 		foreach ($data as $key => $val)
 		{
 			if (strpos($val, '()') == true)
@@ -850,19 +856,19 @@ class Database
 		return $this;
 
 	}
+
 	/**
 	 * Set table prefix
-	 * 
+	 *
 	 * @param string $prefix The prefix of the table. For eg. tbl_
 	 */
-	 
-	 public function set_table_prefix($prefix)
-	 {
-	 		if($prefix) 
-				$this->table_prefix = $prefix ;
-			
-			return $this ;
-	 }
-	
+
+	public function set_table_prefix($prefix)
+	{
+		if ($prefix)
+			$this -> table_prefix = $prefix;
+
+		return $this;
+	}
 
 }
