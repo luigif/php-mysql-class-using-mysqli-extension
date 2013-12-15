@@ -472,7 +472,7 @@ class Database
 	}
 
 	/**
-	 * Update query. Use where() if needed.
+	 * Update query. Use where() if needed. Call execute() to execute the query
 	 *
 	 * @param $table string Name of the table
 	 * @param $data string Array containing the data to be updated
@@ -498,7 +498,7 @@ class Database
 			$this -> _query .= " WHERE ";
 			$this -> _query .= implode(" ", $this -> array_where);
 		}
-		$this -> execute();
+		//$this -> execute();
 		return $this;
 	}
 
