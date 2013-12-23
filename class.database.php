@@ -412,6 +412,15 @@ class Database
 	}
 
 	/**
+	 * Fetches the first row of the result
+	 */
+	public function fetch_first()
+	{
+		if ($this -> _limit == 1)
+			$this -> fetch();
+	}
+
+	/**
 	 * This function returns the last build query. Useful for troubleshooting the
 	 * code.
 	 *
@@ -585,12 +594,12 @@ class Database
 		echo '<tr><td align="right">Date:</td><td>' . date("l, F j, Y \a\\t g:i:s A") . '</td></tr>';
 		if (!empty($this -> _query))
 			echo '<tr><td align="right">Query:</td><td>' . $this -> _query . '</td></tr>';
-		
-		$debug = array_reverse(debug_backtrace()) ;
+
+		$debug = array_reverse(debug_backtrace());
 		echo '<tr><td align="right">Trace:</td><td>';
-		foreach($debug as $issues) 
+		foreach ($debug as $issues)
 		{
-			echo $issues['file'] . ' at line ' . $issues['line'] . '<br>'; 
+			echo $issues['file'] . ' at line ' . $issues['line'] . '<br>';
 		}
 		echo '</td></tr>';
 		echo '</table>';
