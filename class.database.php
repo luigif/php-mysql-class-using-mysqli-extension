@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.1.9
+ * @version   1.1.9a
  **/
 
 class Database
@@ -391,7 +391,7 @@ class Database
 	 */
 	public function fetch()
 	{
-		if ($this -> _executed == FALSE)
+		if ($this -> _executed == FALSE || !$this -> _query)
 			$this -> execute();
 
 		if (is_object($this -> _result))
