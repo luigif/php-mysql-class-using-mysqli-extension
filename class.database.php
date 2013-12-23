@@ -402,18 +402,10 @@ class Database
 				$results = $this -> _result -> fetch_array(MYSQLI_ASSOC);
 			else
 				$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
-
-			// For better result
-			if (count($results) == 1)
-			{
-				$result = $results[0];
-				return $result;
-			}
 			return $results;
 		}
 		else
 		{
-
 			$this -> oops('Unable to perform fetch()');
 		}
 
