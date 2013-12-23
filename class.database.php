@@ -397,11 +397,7 @@ class Database
 		if (is_object($this -> _result))
 		{
 			$this -> _executed = FALSE;
-
-			if ($this -> _limit == 1)
-				$results = $this -> _result -> fetch_array(MYSQLI_ASSOC);
-			else
-				$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
+			$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
 			return $results;
 		}
 		else
@@ -416,9 +412,27 @@ class Database
 	 */
 	public function fetch_first()
 	{
-		if ($this -> _limit == 1)
-			$this -> fetch();
+		if ($this -> _executed == FALSE || !$this -> _query)
+			$this -> execute();
+
+		if (is_object($this -> _result))
+		{
+			$this -> _executed = FALSE;
+			$results = $this -> _result -> fetch_array(MYSQLI_ASSOC);
+			return $results;
+		}
+		else
+		{
+			$this -> oops('Unable to perform fetch_first()');
+		}
 	}
+	
+	public function fetch_array()
+	{
+		return $this->fetch_first() ;
+	}
+	
+	
 
 	/**
 	 * This function returns the last build query. Useful for troubleshooting the
