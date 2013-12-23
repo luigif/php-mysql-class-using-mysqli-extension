@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.1.9b
+ * @version   1.2
  **/
 
 class Database
@@ -176,6 +176,26 @@ class Database
 		return $this -> _where($key, $value, 'OR ');
 	}
 
+	
+	
+	/**
+	 * Tests whether the string has an SQL operator
+	 *
+	 * @param	string
+	 * @return	bool
+	 */
+	function _has_operator($str)
+	{
+		$str = trim($str);
+		if ( ! preg_match("/(\s|<|>|!|=|is null|is not null)/i", $str))
+		{
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+	
+	
 	/**
 	 * Save WHERE as array for building the query
 	 */
@@ -206,7 +226,11 @@ class Database
 		{
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
+			if($this->_has_operator($key)) 
+			$this -> array_where[] = "$prefix$key '$value'";
+			else
 			$this -> array_where[] = "$prefix$key = '$value'";
+			
 		}
 		return $this;
 
