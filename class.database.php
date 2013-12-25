@@ -316,9 +316,7 @@ class Database
 				{
 					$this -> oops('Table Name is required for delete function');
 				}
-				$this -> _query = 'DELETE';
-				$this->_delete = FALSE; // unset delete flag
-				
+				$this -> _query = 'DELETE';				
 			}
 
 			// If select() is not called but the call is a SELECT statement
@@ -326,6 +324,8 @@ class Database
 			{
 				$this -> _query = 'SELECT *';
 			}
+			
+				$this->_delete = FALSE; // unset delete flag
 
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
