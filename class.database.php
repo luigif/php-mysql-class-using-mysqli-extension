@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2
+ * @version   1.2.1
  **/
 
 class Database
@@ -100,6 +100,7 @@ class Database
 	private function reset()
 	{
 		unset($this -> _query);
+		$this->_delete = FALSE;
 		$this -> array_like = array();
 		$this -> array_select = array();
 		$this -> array_where = array();
@@ -316,6 +317,8 @@ class Database
 					$this -> oops('Table Name is required for delete function');
 				}
 				$this -> _query = 'DELETE';
+				$this->_delete = FALSE; // unset delete flag
+				
 			}
 
 			// If select() is not called but the call is a SELECT statement
