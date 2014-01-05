@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.1
+ * @version   1.2.2
  **/
 
 class Database
@@ -59,6 +59,7 @@ class Database
 	var $array_groupby = array();
 	var $array_having = array();
 	var $array_orderby = array();
+	var $array_join = array();
 
 	public function __construct($host, $username, $password, $db, $port = NULL)
 	{
@@ -100,10 +101,11 @@ class Database
 	private function reset()
 	{
 		unset($this -> _query);
-		$this->_delete = FALSE;
+		$this -> _delete = FALSE;
 		$this -> array_like = array();
 		$this -> array_select = array();
 		$this -> array_where = array();
+		$this -> array_join = array();
 	}
 
 	/**
@@ -177,8 +179,6 @@ class Database
 		return $this -> _where($key, $value, 'OR ');
 	}
 
-	
-	
 	/**
 	 * Tests whether the string has an SQL operator
 	 *
@@ -188,15 +188,14 @@ class Database
 	function _has_operator($str)
 	{
 		$str = trim($str);
-		if ( ! preg_match("/(\s|<|>|!|=|is null|is not null)/i", $str))
+		if (!preg_match("/(\s|<|>|!|=|is null|is not null)/i", $str))
 		{
 			return FALSE;
 		}
 
 		return TRUE;
 	}
-	
-	
+
 	/**
 	 * Save WHERE as array for building the query
 	 */
@@ -227,11 +226,11 @@ class Database
 		{
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
-			if($this->_has_operator($key)) 
-			$this -> array_where[] = "$prefix$key '$value'";
+			if ($this -> _has_operator($key))
+				$this -> array_where[] = "$prefix$key '$value'";
 			else
-			$this -> array_where[] = "$prefix$key = '$value'";
-			
+				$this -> array_where[] = "$prefix$key = '$value'";
+
 		}
 		return $this;
 
@@ -316,7 +315,7 @@ class Database
 				{
 					$this -> oops('Table Name is required for delete function');
 				}
-				$this -> _query = 'DELETE';				
+				$this -> _query = 'DELETE';
 			}
 
 			// If select() is not called but the call is a SELECT statement
@@ -324,12 +323,21 @@ class Database
 			{
 				$this -> _query = 'SELECT *';
 			}
-			
-				$this->_delete = FALSE; // unset delete flag
+
+			$this -> _delete = FALSE;
+			// unset delete flag
 
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
 				$this -> _query .= " FROM $this->_fromTable ";
+
+			// Write the "JOIN" portion of the query
+
+			if (count($this -> array_join) > 0)
+			{
+				$this -> _query .= "\n";
+				$this -> _query .= implode("\n", $this -> array_join);
+			}
 
 			// Write the "WHERE" portion of the query
 			if (count($this -> array_where) > 0)
@@ -453,13 +461,11 @@ class Database
 			$this -> oops('Unable to perform fetch_first()');
 		}
 	}
-	
+
 	public function fetch_array()
 	{
-		return $this->fetch_first() ;
+		return $this -> fetch_first();
 	}
-	
-	
 
 	/**
 	 * This function returns the last build query. Useful for troubleshooting the
@@ -919,6 +925,29 @@ class Database
 			$this -> table_prefix = $prefix;
 
 		return $this;
+	}
+
+	/**
+	 * Join
+	 *
+	 * Generates the JOIN portion of the query
+	 *
+	 * @param	string $table Table for joining
+	 * @param	string $condition Condition of join
+	 * @param	string $type Type of join. Example 'LEFT', 'RIGHT', 'OUTER', 'INNER',
+	 * 'LEFT OUTER', 'RIGHT OUTER'
+
+	 */
+	public function join($table, $condition, $type = null)
+	{
+		if ($type == null)
+			$type = 'LEFT';
+		// Default is left join
+		$type = strtoupper($type);
+		$join = $type . ' JOIN ' . $table . ' ON ' . $condition;
+		$this -> array_join[] = $join;
+		return $this;
+
 	}
 
 }
