@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.2
+ * @version   1.2.3
  **/
 
 class Database
@@ -23,7 +23,7 @@ class Database
 	/**
 	 * The SQL Query
 	 */
-	var $_query;
+	private $_query;
 
 	/**
 	 * Affected rows after a select/update/delete query
@@ -32,16 +32,17 @@ class Database
 	/**
 	 * Limit and offset
 	 */
-	var $_limit;
-	var $_offset;
-	var $_result;
+	private $_limit;
+	private $_offset;
+	private $_result;
 	var $error = '';
 	var $debug = TRUE;
 	var $die_on_error = TRUE;
 	// Script execution will stop if set to TRUE. Default is TRUE ;
-	var $_last_query = '';
-	var $_executed = FALSE;
-	var $_delete = FALSE;
+	private $_last_query = '';
+	private $_executed = FALSE;
+	private $_delete = FALSE;
+	private $_distinct = FALSE;
 	protected $table_prefix;
 
 	/**
@@ -102,6 +103,7 @@ class Database
 	{
 		unset($this -> _query);
 		$this -> _delete = FALSE;
+		$this -> _distinct = FALSE;
 		$this -> array_like = array();
 		$this -> array_select = array();
 		$this -> array_where = array();
@@ -295,7 +297,7 @@ class Database
 			// Write the "SELECT" portion of the query
 			if (!empty($this -> array_select))
 			{
-				$this -> _query = "SELECT ";
+				$this -> _query = ( ! $this->_distinct) ? 'SELECT ' : 'SELECT DISTINCT ';
 				if ($this -> array_select == '*' OR count($this -> array_select) == 0)
 				{
 					$this -> _query .= '*';
@@ -321,7 +323,7 @@ class Database
 			// If select() is not called but the call is a SELECT statement
 			if ($this -> _delete == FALSE && empty($this -> array_select))
 			{
-				$this -> _query = 'SELECT *';
+				$this -> _query = ( ! $this->_distinct) ? 'SELECT * ' : 'SELECT DISTINCT * ';
 			}
 
 			$this -> _delete = FALSE;
@@ -947,7 +949,16 @@ class Database
 		$join = $type . ' JOIN ' . $table . ' ON ' . $condition;
 		$this -> array_join[] = $join;
 		return $this;
+	}
+	
+	/**
+	 * Set a flag for DISTINCT keyword
+	 */
 
+	public function distinct()
+	{
+		$this -> _distinct = TRUE;
+		return $this ;
 	}
 
 }
