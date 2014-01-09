@@ -913,7 +913,7 @@ class Database
 		else
 		{
 			$direction = strtoupper($direction);
-			$this -> array_orderby[] = "$orderby $direction";
+			$this -> array_orderby[] = "`$orderby` $direction";
 		}
 		return $this;
 
