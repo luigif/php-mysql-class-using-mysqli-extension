@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.4
+ * @version   1.2.5
  **/
 
 class Database
@@ -427,6 +427,7 @@ class Database
 		$this -> prepare();
 		if ($this -> _dryrun == TRUE)
 		{
+			$this -> reset();
 			return $this;
 		}
 
