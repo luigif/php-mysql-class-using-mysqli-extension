@@ -44,6 +44,7 @@ class Database
 	private $_delete = FALSE;
 	private $_distinct = FALSE;
 	protected $table_prefix;
+	private $_dryrun = FALSE;
 
 	/**
 	 * The table name used as FROM
@@ -104,6 +105,7 @@ class Database
 		unset($this -> _query);
 		$this -> _delete = FALSE;
 		$this -> _distinct = FALSE;
+		$this -> _dryrun = FALSE;
 		$this -> array_like = array();
 		$this -> array_select = array();
 		$this -> array_where = array();
@@ -149,8 +151,7 @@ class Database
 
 	public function query_first($query)
 	{
-		$this -> _query = filter_var($query, FILTER_SANITIZE_STRING);
-		$this -> limit(1);
+		$this -> limit(1) -> query($query);
 		return $this;
 	}
 
@@ -297,7 +298,7 @@ class Database
 			// Write the "SELECT" portion of the query
 			if (!empty($this -> array_select))
 			{
-				$this -> _query = ( ! $this->_distinct) ? 'SELECT ' : 'SELECT DISTINCT ';
+				$this -> _query = (!$this -> _distinct) ? 'SELECT ' : 'SELECT DISTINCT ';
 				if ($this -> array_select == '*' OR count($this -> array_select) == 0)
 				{
 					$this -> _query .= '*';
@@ -323,7 +324,7 @@ class Database
 			// If select() is not called but the call is a SELECT statement
 			if ($this -> _delete == FALSE && empty($this -> array_select))
 			{
-				$this -> _query = ( ! $this->_distinct) ? 'SELECT * ' : 'SELECT DISTINCT * ';
+				$this -> _query = (!$this -> _distinct) ? 'SELECT * ' : 'SELECT DISTINCT * ';
 			}
 
 			$this -> _delete = FALSE;
@@ -402,6 +403,17 @@ class Database
 	}
 
 	/**
+	 * Dry Run function allows the developer to view the full query before its
+	 * execution.
+	 */
+
+	public function dryrun()
+	{
+		$this -> _dryrun = TRUE;
+		return $this;
+	}
+
+	/**
 	 * Execute the query. This function returns the object. For getting the result of
 	 * the execution use fetch();
 	 */
@@ -409,6 +421,11 @@ class Database
 	public function execute()
 	{
 		$this -> prepare();
+		if ($this -> _dryrun == TRUE)
+		{
+			return $this;
+		}
+
 		$this -> _result = $this -> _mysqli -> query($this -> _query);
 		if (!$this -> _result)
 			$this -> oops();
@@ -477,7 +494,10 @@ class Database
 	 */
 	public function last_query()
 	{
-		return $this -> _last_query;
+		if ($this -> _dryrun == TRUE)
+			return $this -> _query;
+		else
+			return $this -> _last_query;
 	}
 
 	/**
@@ -548,7 +568,7 @@ class Database
 			$this -> _query .= " WHERE ";
 			$this -> _query .= implode(" ", $this -> array_where);
 		}
-		//$this -> execute();
+		$this -> execute();
 		return $this;
 	}
 
@@ -950,7 +970,7 @@ class Database
 		$this -> array_join[] = $join;
 		return $this;
 	}
-	
+
 	/**
 	 * Set a flag for DISTINCT keyword
 	 */
@@ -958,7 +978,7 @@ class Database
 	public function distinct()
 	{
 		$this -> _distinct = TRUE;
-		return $this ;
+		return $this;
 	}
 
 }
