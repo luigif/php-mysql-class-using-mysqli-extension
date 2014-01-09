@@ -106,10 +106,14 @@ class Database
 		$this -> _delete = FALSE;
 		$this -> _distinct = FALSE;
 		$this -> _dryrun = FALSE;
-		$this -> array_like = array();
-		$this -> array_select = array();
-		$this -> array_where = array();
-		$this -> array_join = array();
+		$array_where = array();
+		$array_select = array();
+		$array_like = array();
+		$array_wherein = array();
+		$array_groupby = array();
+		$array_having = array();
+		$array_orderby = array();
+		$array_join = array();
 	}
 
 	/**
