@@ -234,9 +234,9 @@ class Database
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
 			if ($this -> _has_operator($key))
-				$this -> array_where[] = "$prefix$key '$value'";
+				$this -> array_where[] = "$prefix`$key` '$value'";
 			else
-				$this -> array_where[] = "$prefix$key = '$value'";
+				$this -> array_where[] = "$prefix`$key` = '$value'";
 
 		}
 		return $this;
@@ -264,7 +264,7 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_select[] = $val;
+				$this -> array_select[] = "`$val`";
 
 			}
 		}
@@ -336,7 +336,7 @@ class Database
 
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
-				$this -> _query .= " FROM $this->_fromTable ";
+				$this -> _query .= " FROM `$this->_fromTable` ";
 
 			// Write the "JOIN" portion of the query
 
@@ -538,7 +538,7 @@ class Database
 
 		foreach ($data as $key => $value)
 		{
-			$keys[] = $key;
+			$keys[] = "`$key`";
 			if (strpos($value, '()') == true)
 				$values[] = "$value";
 			else
@@ -565,9 +565,9 @@ class Database
 		foreach ($data as $key => $val)
 		{
 			if (strpos($val, '()') == true)
-				$valstr[] = $key . " = $val";
+				$valstr[] = "`$key`" . " = $val";
 			else
-				$valstr[] = $key . " = '$val'";
+				$valstr[] = "`$key`" . " = '$val'";
 		}
 
 		$this -> _query = "UPDATE " . $table . " SET " . implode(', ', $valstr);
@@ -636,13 +636,13 @@ class Database
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
-				$this -> array_like[] = "$prefix$title LIKE '%$match%'";
+				$this -> array_like[] = "$prefix`$title` LIKE '%$match%'";
 			if ($place == 'before')
-				$this -> array_like[] = "$prefix$title LIKE '%$match'";
+				$this -> array_like[] = "$prefix`$title` LIKE '%$match'";
 			if ($place == 'after')
-				$this -> array_like[] = "$prefix$title LIKE '$match%'";
+				$this -> array_like[] = "$prefix`$title` LIKE '$match%'";
 			if ($place == 'none')
-				$this -> array_like[] = "$prefix$title LIKE '$match'";
+				$this -> array_like[] = "$prefix`$title` LIKE '$match'";
 
 			return $this;
 
@@ -697,7 +697,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MAX($field) AS $name ";
+		$this -> array_select[0] = "MAX(`$field`) AS $name ";
 		return $this;
 	}
 
@@ -712,7 +712,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MIN($field) AS $name ";
+		$this -> array_select[0] = "MIN(`$field`) AS $name ";
 		return $this;
 
 	}
@@ -728,7 +728,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "AVG($field) AS $name ";
+		$this -> array_select[0] = "AVG(`$field`) AS $name ";
 		return $this;
 
 	}
@@ -744,7 +744,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "SUM($field) AS $name ";
+		$this -> array_select[0] = "SUM(`$field`) AS $name ";
 		return $this;
 
 	}
@@ -755,7 +755,8 @@ class Database
 
 	public function where_in($key = NULL, $values = NULL)
 	{
-		return $this -> _where_in($key, $values);
+		 $this -> _where_in($key, $values);
+		
 	}
 
 	/**
@@ -764,7 +765,8 @@ class Database
 
 	public function or_where_in($key = NULL, $values = NULL)
 	{
-		return $this -> _where_in($key, $values, FALSE, 'OR ');
+		 $this -> _where_in($key, $values, FALSE, 'OR ');
+		 return $this;
 	}
 
 	/**
@@ -773,7 +775,8 @@ class Database
 
 	public function where_not_in($key = NULL, $values = NULL)
 	{
-		return $this -> _where_in($key, $values, TRUE);
+		 $this -> _where_in($key, $values, TRUE);
+		  return $this;
 	}
 
 	/**
@@ -781,7 +784,8 @@ class Database
 	 */
 	public function or_where_not_in($key = NULL, $values = NULL)
 	{
-		return $this -> _where_in($key, $values, TRUE, 'OR ');
+		 $this -> _where_in($key, $values, TRUE, 'OR ');
+		 return $this;
 	}
 
 	/**
@@ -805,7 +809,7 @@ class Database
 			$this -> array_wherein[] = "'" . $this -> escape($value) . "'";
 		}
 		$prefix = (count($this -> array_where) == 0) ? '' : $type;
-		$where_in = $prefix . $key . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
+		$where_in = $prefix . "`$key`" . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
 		$this -> array_where[] = $where_in;
 		$this -> array_wherein = array();
 		return $this;
@@ -830,7 +834,7 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_groupby[] = $val;
+				$this -> array_groupby[] = "`$val`";
 			}
 		}
 		return $this;
@@ -892,7 +896,7 @@ class Database
 			{
 				$v = " = '" . $this -> escape($v) . "'";
 			}
-			$this -> array_having[] = $prefix . $k . $v;
+			$this -> array_having[] = $prefix . "`$k`" . $v;
 		}
 		return $this;
 	}
