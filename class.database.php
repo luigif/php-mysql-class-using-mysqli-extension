@@ -427,7 +427,10 @@ class Database
 		$this -> prepare();
 		if ($this -> _dryrun == TRUE)
 		{
+			$q = $this -> _query;
 			$this -> reset();
+			$this -> _query = $q;
+			$this -> _dryrun = true;
 			return $this;
 		}
 
