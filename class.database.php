@@ -264,7 +264,7 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_select[] = "`$val`";
+				$this -> array_select[] = "$val";
 
 			}
 		}
