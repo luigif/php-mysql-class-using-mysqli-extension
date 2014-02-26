@@ -103,6 +103,8 @@ class Database
 	private function reset()
 	{
 		unset($this -> _query);
+		unset($this -> _limit);
+        unset($this -> _offset);
 		$this -> _delete = FALSE;
 		$this -> _distinct = FALSE;
 		$this -> _dryrun = FALSE;
