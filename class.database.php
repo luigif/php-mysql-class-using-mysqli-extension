@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.5
+ * @version   1.2.6
  **/
 
 class Database
@@ -135,13 +135,18 @@ class Database
 
 	/**
 	 * Executes raw sql query.
+	 * 
+	 * @param $query string The raw query
+	 * @param $sanitize boolean If true is provided, the query will be sanitized. Default is False
 	 *
-	 * @uses $db->query("SELECT * FROM table");
 	 * @return object Returns the object. Use $db->fetch() to get the results array
 	 */
-	public function query($query)
+	public function query($query, $sanitize = FALSE)
 	{
-		$this -> _query = filter_var($query, FILTER_SANITIZE_STRING);
+		if ($sanitize == TRUE)
+			$this -> _query = filter_var($query, FILTER_SANITIZE_STRING);
+		else
+			$this -> _query = $query;
 		return $this;
 	}
 
@@ -264,7 +269,7 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_select[] = "`$val`";
+				$this -> array_select[] = "$val";
 
 			}
 		}
@@ -755,8 +760,8 @@ class Database
 
 	public function where_in($key = NULL, $values = NULL)
 	{
-		 $this -> _where_in($key, $values);
-		
+		$this -> _where_in($key, $values);
+
 	}
 
 	/**
@@ -765,8 +770,8 @@ class Database
 
 	public function or_where_in($key = NULL, $values = NULL)
 	{
-		 $this -> _where_in($key, $values, FALSE, 'OR ');
-		 return $this;
+		$this -> _where_in($key, $values, FALSE, 'OR ');
+		return $this;
 	}
 
 	/**
@@ -775,8 +780,8 @@ class Database
 
 	public function where_not_in($key = NULL, $values = NULL)
 	{
-		 $this -> _where_in($key, $values, TRUE);
-		  return $this;
+		$this -> _where_in($key, $values, TRUE);
+		return $this;
 	}
 
 	/**
@@ -784,8 +789,8 @@ class Database
 	 */
 	public function or_where_not_in($key = NULL, $values = NULL)
 	{
-		 $this -> _where_in($key, $values, TRUE, 'OR ');
-		 return $this;
+		$this -> _where_in($key, $values, TRUE, 'OR ');
+		return $this;
 	}
 
 	/**
