@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.6
+ * @version   1.2.7
  **/
 
 class Database
@@ -103,6 +103,8 @@ class Database
 	private function reset()
 	{
 		unset($this -> _query);
+		unset($this -> _limit);
+		unset($this -> _offset);
 		$this -> _delete = FALSE;
 		$this -> _distinct = FALSE;
 		$this -> _dryrun = FALSE;
@@ -135,9 +137,10 @@ class Database
 
 	/**
 	 * Executes raw sql query.
-	 * 
+	 *
 	 * @param $query string The raw query
-	 * @param $sanitize boolean If true is provided, the query will be sanitized. Default is False
+	 * @param $sanitize boolean If true is provided, the query will be sanitized.
+	 * Default is False
 	 *
 	 * @return object Returns the object. Use $db->fetch() to get the results array
 	 */
@@ -464,7 +467,17 @@ class Database
 		if (is_object($this -> _result))
 		{
 			$this -> _executed = FALSE;
-			$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
+			// Checks whether fetch_all method is available. It is available only with MySQL
+			// Native Driver.
+			if (method_exists('mysqli_result', 'fetch_all'))
+			{
+				$results = $this -> _result -> fetch_all(MYSQLI_ASSOC);
+			}
+			else
+			{
+				for ($results = array(); $tmp = $this -> _result -> fetch_array('MYSQLI_ASSOC'); )
+					$results[] = $tmp;
+			}
 			return $results;
 		}
 		else
