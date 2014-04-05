@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.7
+ * @version   1.2.8
  **/
 
 class Database
@@ -654,13 +654,13 @@ class Database
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
-				$this -> array_like[] = "$prefix`$title` LIKE '%$match%'";
+				$this -> array_where[] = "$prefix`$title` LIKE '%$match%'";
 			if ($place == 'before')
-				$this -> array_like[] = "$prefix`$title` LIKE '%$match'";
+				$this -> array_where[] = "$prefix`$title` LIKE '%$match'";
 			if ($place == 'after')
-				$this -> array_like[] = "$prefix`$title` LIKE '$match%'";
+				$this -> array_where[] = "$prefix`$title` LIKE '$match%'";
 			if ($place == 'none')
-				$this -> array_like[] = "$prefix`$title` LIKE '$match'";
+				$this -> array_where[] = "$prefix`$title` LIKE '$match'";
 
 			return $this;
 
