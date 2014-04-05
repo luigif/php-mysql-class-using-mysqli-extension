@@ -654,13 +654,13 @@ class Database
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
-				$this -> array_like[] = "$prefix`$title` LIKE '%$match%'";
+				$this -> array_where[] = "$prefix`$title` LIKE '%$match%'";
 			if ($place == 'before')
-				$this -> array_like[] = "$prefix`$title` LIKE '%$match'";
+				$this -> array_where[] = "$prefix`$title` LIKE '%$match'";
 			if ($place == 'after')
-				$this -> array_like[] = "$prefix`$title` LIKE '$match%'";
+				$this -> array_where[] = "$prefix`$title` LIKE '$match%'";
 			if ($place == 'none')
-				$this -> array_like[] = "$prefix`$title` LIKE '$match'";
+				$this -> array_where[] = "$prefix`$title` LIKE '$match'";
 
 			return $this;
 
