@@ -475,7 +475,7 @@ class Database
 			}
 			else
 			{
-				for ($results = array(); $tmp = $this -> _result -> fetch_array('MYSQLI_ASSOC'); )
+				for ($results = array(); $tmp = $this -> _result -> fetch_array(MYSQLI_ASSOC); )
 					$results[] = $tmp;
 			}
 			return $results;
