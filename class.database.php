@@ -399,7 +399,7 @@ class Database
 		}
 
 		// Write the "LIMIT" portion of the query
-		if ($this -> _limit > 0)
+		if (isset($this -> _limit) && $this -> _limit > 0)
 		{
 			$this -> _query .= ' LIMIT ' . $this -> _limit;
 		}
