@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.8a
+ * @version   1.2.8b
  **/
 
 class Database
@@ -242,9 +242,9 @@ class Database
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
 			if ($this -> _has_operator($key))
-				$this -> array_where[] = "$prefix`$key` '$value'";
+				$this -> array_where[] = "$prefix$key '$value'";
 			else
-				$this -> array_where[] = "$prefix`$key` = '$value'";
+				$this -> array_where[] = "$prefix$key = '$value'";
 
 		}
 		return $this;
