@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.8b
+ * @version   1.2.8c
  **/
 
 class Database
@@ -407,7 +407,7 @@ class Database
 		// Write the "OFFSET" portion of the query
 		if (isset($this -> _offset))
 		{
-			$this -> _query .= ' ' . $this -> _offset;
+			$this -> _query .= ' , ' . $this -> _offset;
 		}
 
 		return $this;
