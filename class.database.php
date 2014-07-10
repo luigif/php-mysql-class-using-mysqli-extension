@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.8a
+ * @version   1.3
  **/
 
 class Database
@@ -363,17 +363,6 @@ class Database
 
 		}
 
-		// Like portion
-
-		if (!empty($this -> array_like))
-		{
-			if (!empty($this -> array_where))
-			{
-				$this -> _query .= "\nAND ";
-			}
-			$this -> _query .= implode("\n", $this -> array_like);
-		}
-
 		// Write the "GROUP BY" portion of the query
 
 		if (!empty($this -> array_groupby))
@@ -650,7 +639,8 @@ class Database
 		}
 		else
 		{
-			$prefix = (count($this -> array_like) == 0) ? '' : $type;
+			$this -> array_like[] = $title;
+			$prefix = (count($this -> array_like) == 1) ? '' : $type;
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
