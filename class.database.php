@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.2.8d
+ * @version   1.3
  **/
 
 class Database
@@ -127,8 +127,9 @@ class Database
 
 	public function limit($limit, $offset = null)
 	{
+		if ($limit > 0)
 			$this -> _limit = (int)$limit;
-		if ($offset != null)
+		if ($offset > 0)
 			$this -> _offset = (int)$offset;
 
 		return $this;
@@ -241,9 +242,9 @@ class Database
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
 			if ($this -> _has_operator($key))
-				$this -> array_where[] = "$prefix$key '$value'";
+				$this -> array_where[] = "$prefix`$key` '$value'";
 			else
-				$this -> array_where[] = "$prefix$key = '$value'";
+				$this -> array_where[] = "$prefix`$key` = '$value'";
 
 		}
 		return $this;
@@ -362,17 +363,6 @@ class Database
 
 		}
 
-		// Like portion
-
-		if (!empty($this -> array_like))
-		{
-			if (!empty($this -> array_where))
-			{
-				$this -> _query .= "\nAND ";
-			}
-			$this -> _query .= implode("\n", $this -> array_like);
-		}
-
 		// Write the "GROUP BY" portion of the query
 
 		if (!empty($this -> array_groupby))
@@ -398,7 +388,7 @@ class Database
 		}
 
 		// Write the "LIMIT" portion of the query
-		if (isset($this -> _limit))
+		if (isset($this -> _limit) && $this -> _limit > 0)
 		{
 			$this -> _query .= ' LIMIT ' . $this -> _limit;
 		}
@@ -406,7 +396,7 @@ class Database
 		// Write the "OFFSET" portion of the query
 		if (isset($this -> _offset))
 		{
-			$this -> _query .= ' , ' . $this -> _offset;
+			$this -> _query .= ' ' . $this -> _offset;
 		}
 
 		return $this;
@@ -649,7 +639,8 @@ class Database
 		}
 		else
 		{
-			$prefix = (count($this -> array_like) == 0) ? '' : $type;
+			$this -> array_like[] = $title;
+			$prefix = (count($this -> array_like) == 1) ? '' : $type;
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
