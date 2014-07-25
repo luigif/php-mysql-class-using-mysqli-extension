@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3
+ * @version   1.3.1
  **/
 
 class Database
@@ -705,7 +705,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MAX(`$field`) AS $name ";
+		$this -> array_select[0] = "MAX($field) AS $name ";
 		return $this;
 	}
 
@@ -720,7 +720,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MIN(`$field`) AS $name ";
+		$this -> array_select[0] = "MIN($field) AS $name ";
 		return $this;
 
 	}
@@ -736,7 +736,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "AVG(`$field`) AS $name ";
+		$this -> array_select[0] = "AVG($field) AS $name ";
 		return $this;
 
 	}
@@ -752,7 +752,7 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "SUM(`$field`) AS $name ";
+		$this -> array_select[0] = "SUM($field) AS $name ";
 		return $this;
 
 	}
