@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3.2
+ * @version   1.3.3
  **/
 
 class Database
@@ -283,7 +283,10 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_select[] = "$val";
+				if ($this -> isReservedWord($val))
+					$this -> array_select[] = "`$val`";
+				else
+					$this -> array_select[] = "$val";
 
 			}
 		}
