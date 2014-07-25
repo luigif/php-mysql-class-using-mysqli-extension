@@ -127,7 +127,8 @@ class Database
 
 	public function limit($limit, $offset = null)
 	{
-		if ($limit > 0)
+		//if ($limit > 0) // Commented out in version v1.3.4 
+		if($limit) 
 			$this -> _limit = (int)$limit;
 		if ($offset > 0)
 			$this -> _offset = (int)$offset;
