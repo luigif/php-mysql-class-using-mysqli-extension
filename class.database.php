@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3.3
+ * @version   1.3.4
  **/
 
 class Database
@@ -127,10 +127,8 @@ class Database
 
 	public function limit($limit, $offset = null)
 	{
-		//if ($limit > 0) // Commented out in version v1.3.4 
-		if($limit) 
-			$this -> _limit = (int)$limit;
-		if ($offset > 0)
+		$this -> _limit = (int)$limit;
+		if ($offset)
 			$this -> _offset = (int)$offset;
 
 		return $this;
@@ -408,15 +406,15 @@ class Database
 		}
 
 		// Write the "LIMIT" portion of the query
-		if (isset($this -> _limit) && $this -> _limit > 0)
+		if (isset($this -> _limit))
 		{
 			$this -> _query .= ' LIMIT ' . $this -> _limit;
 		}
 
 		// Write the "OFFSET" portion of the query
-		if (isset($this -> _offset))
+		if (isset($this -> _limit) && isset($this -> _offset))
 		{
-			$this -> _query .= ' ' . $this -> _offset;
+			$this -> _query .= ', ' . $this -> _offset;
 		}
 
 		return $this;
