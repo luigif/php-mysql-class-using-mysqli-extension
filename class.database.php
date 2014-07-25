@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3.1
+ * @version   1.3.2
  **/
 
 class Database
@@ -242,9 +242,20 @@ class Database
 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$value = $this -> escape($value);
 			if ($this -> _has_operator($key))
-				$this -> array_where[] = "$prefix`$key` '$value'";
+			{
+				if ($this -> isReservedWord($key) == true)
+					$this -> array_where[] = "$prefix`$key` '$value'";
+				else
+					$this -> array_where[] = "$prefix$key '$value'";
+			}
+
 			else
-				$this -> array_where[] = "$prefix`$key` = '$value'";
+			{
+				if ($this -> isReservedWord($key) == true)
+					$this -> array_where[] = "$prefix`$key` = '$value'";
+				else
+					$this -> array_where[] = "$prefix$key = '$value'";
+			}
 
 		}
 		return $this;
@@ -344,20 +355,25 @@ class Database
 
 			// Write the "FROM" portion of the query
 			if (isset($this -> _fromTable))
-				$this -> _query .= " FROM `$this->_fromTable` ";
+			{
+				if ($this -> isReservedWord($this -> _fromTable))
+					$this -> _query .= " FROM `$this->_fromTable` ";
+				else
+					$this -> _query .= " FROM $this->_fromTable ";
+			}
 
 			// Write the "JOIN" portion of the query
 
 			if (count($this -> array_join) > 0)
 			{
-				$this -> _query .= "\n";
+				$this -> _query .= " ";
 				$this -> _query .= implode("\n", $this -> array_join);
 			}
 
 			// Write the "WHERE" portion of the query
 			if (count($this -> array_where) > 0)
 			{
-				$this -> _query .= "\nWHERE ";
+				$this -> _query .= " WHERE ";
 				$this -> _query .= implode("\n", $this -> array_where);
 			}
 
@@ -367,7 +383,7 @@ class Database
 
 		if (!empty($this -> array_groupby))
 		{
-			$this -> _query .= "\nGROUP BY ";
+			$this -> _query .= " GROUP BY ";
 			$this -> _query .= implode(', ', $this -> array_groupby);
 		}
 
@@ -375,7 +391,7 @@ class Database
 
 		if (!empty($this -> array_having))
 		{
-			$this -> _query .= "\nHAVING ";
+			$this -> _query .= " HAVING ";
 			$this -> _query .= implode("\n", $this -> array_having);
 		}
 
@@ -383,7 +399,7 @@ class Database
 
 		if (!empty($this -> array_orderby))
 		{
-			$this -> _query .= "\nORDER BY ";
+			$this -> _query .= " ORDER BY ";
 			$this -> _query .= implode(', ', $this -> array_orderby);
 		}
 
@@ -644,13 +660,36 @@ class Database
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
-				$this -> array_where[] = "$prefix`$title` LIKE '%$match%'";
+			{
+				if ($this -> isReservedWord($title))
+					$this -> array_where[] = "$prefix`$title` LIKE '%$match%'";
+				else
+					$this -> array_where[] = "$prefix$title LIKE '%$match%'";
+			}
+
 			if ($place == 'before')
-				$this -> array_where[] = "$prefix`$title` LIKE '%$match'";
+			{
+				if ($this -> isReservedWord($title))
+					$this -> array_where[] = "$prefix`$title` LIKE '%$match'";
+				else
+					$this -> array_where[] = "$prefix$title LIKE '%$match'";
+			}
+
 			if ($place == 'after')
-				$this -> array_where[] = "$prefix`$title` LIKE '$match%'";
+			{
+				if ($this -> isReservedWord($title))
+					$this -> array_where[] = "$prefix`$title` LIKE '$match%'";
+				else
+					$this -> array_where[] = "$prefix$title LIKE '$match%'";
+			}
+
 			if ($place == 'none')
-				$this -> array_where[] = "$prefix`$title` LIKE '$match'";
+			{
+				if ($this -> isReservedWord($title))
+					$this -> array_where[] = "$prefix`$title` LIKE '$match'";
+				else
+					$this -> array_where[] = "$prefix$title LIKE '$match'";
+			}
 
 			return $this;
 
@@ -705,7 +744,10 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MAX($field) AS $name ";
+		if ($this -> isReservedWord($field))
+			$this -> array_select[0] = "MAX(`$field`) AS $name ";
+		else
+			$this -> array_select[0] = "MAX($field) AS $name ";
 		return $this;
 	}
 
@@ -720,7 +762,10 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "MIN($field) AS $name ";
+		if ($this -> isReservedWord($field))
+			$this -> array_select[0] = "MIN(`$field`) AS $name ";
+		else
+			$this -> array_select[0] = "MIN($field) AS $name ";
 		return $this;
 
 	}
@@ -736,7 +781,10 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "AVG($field) AS $name ";
+		if ($this -> isReservedWord($field))
+			$this -> array_select[0] = "AVG(`$field`) AS $name ";
+		else
+			$this -> array_select[0] = "AVG($field) AS $name ";
 		return $this;
 
 	}
@@ -752,7 +800,11 @@ class Database
 	{
 		if ($name == null)
 			$name = $field;
-		$this -> array_select[0] = "SUM($field) AS $name ";
+		if ($this -> isReservedWord($field))
+
+			$this -> array_select[0] = "SUM(`$field`) AS $name ";
+		else
+			$this -> array_select[0] = "SUM($field) AS $name ";
 		return $this;
 
 	}
@@ -817,7 +869,11 @@ class Database
 			$this -> array_wherein[] = "'" . $this -> escape($value) . "'";
 		}
 		$prefix = (count($this -> array_where) == 0) ? '' : $type;
-		$where_in = $prefix . "`$key`" . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
+
+		if ($this -> isReservedWord($key))
+			$where_in = $prefix . "`$key`" . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
+		else
+			$where_in = $prefix . "$key" . $not . " IN (" . implode(", ", $this -> array_wherein) . ") ";
 		$this -> array_where[] = $where_in;
 		$this -> array_wherein = array();
 		return $this;
@@ -842,7 +898,10 @@ class Database
 
 			if ($val != '')
 			{
-				$this -> array_groupby[] = "`$val`";
+				if ($this -> isReservedWord($val))
+					$this -> array_groupby[] = "`$val`";
+				else
+					$this -> array_groupby[] = "$val";
 			}
 		}
 		return $this;
@@ -904,7 +963,10 @@ class Database
 			{
 				$v = " = '" . $this -> escape($v) . "'";
 			}
-			$this -> array_having[] = $prefix . "`$k`" . $v;
+			if ($this -> isReservedWord($k))
+				$this -> array_having[] = $prefix . "`$k`" . $v;
+			else
+				$this -> array_having[] = $prefix . "$k" . $v;
 		}
 		return $this;
 	}
@@ -933,7 +995,10 @@ class Database
 		else
 		{
 			$direction = strtoupper($direction);
-			$this -> array_orderby[] = "`$orderby` $direction";
+			if ($this -> isReservedWord($orderby))
+				$this -> array_orderby[] = "`$orderby` $direction";
+			else
+				$this -> array_orderby[] = "$orderby $direction";
 		}
 		return $this;
 
@@ -999,6 +1064,248 @@ class Database
 	{
 		$this -> _distinct = TRUE;
 		return $this;
+	}
+
+	private function isReservedWord($word)
+	{
+		$words = array(
+			"ACCESSIBLE",
+			"ADD",
+			"ALL",
+			"ALTER",
+			"ANALYZE",
+			"AND",
+			"AS",
+			"ASC",
+			"ASENSITIVE",
+			"BEFORE",
+			"BETWEEN",
+			"BIGINT",
+			"BINARY",
+			"BLOB",
+			"BOTH",
+			"BY",
+			"CALL",
+			"CASCADE",
+			"CASE",
+			"CHANGE",
+			"CHAR",
+			"CHARACTER",
+			"CHECK",
+			"COLLATE",
+			"COLUMN",
+			"CONDITION",
+			"CONSTRAINT",
+			"CONTINUE",
+			"CONVERT",
+			"CREATE",
+			"CROSS",
+			"CURRENT_DATE",
+			"CURRENT_TIME",
+			"CURRENT_TIMESTAMP",
+			"CURRENT_USER",
+			"CURSOR",
+			"DATABASE",
+			"DATABASES",
+			"DAY_HOUR",
+			"DAY_MICROSECOND",
+			"DAY_MINUTE",
+			"DAY_SECOND",
+			"DEC",
+			"DECIMAL",
+			"DECLARE",
+			"DEFAULT",
+			"DELAYED",
+			"DELETE",
+			"DESC",
+			"DESCRIBE",
+			"DETERMINISTIC",
+			"DISTINCT",
+			"DISTINCTROW",
+			"DIV",
+			"DOUBLE",
+			"DROP",
+			"DUAL",
+			"EACH",
+			"ELSE",
+			"ELSEIF",
+			"ENCLOSED",
+			"ESCAPED",
+			"EXISTS",
+			"EXIT",
+			"EXPLAIN",
+			"FALSE",
+			"FETCH",
+			"FLOAT",
+			"FLOAT4",
+			"FLOAT8",
+			"FOR",
+			"FORCE",
+			"FOREIGN",
+			"FROM",
+			"FULLTEXT",
+			"GENERAL[a]",
+			"GRANT",
+			"GROUP",
+			"HAVING",
+			"HIGH_PRIORITY",
+			"HOUR_MICROSECOND",
+			"HOUR_MINUTE",
+			"HOUR_SECOND",
+			"IF",
+			"IGNORE",
+			"IGNORE_SERVER_IDS[b]",
+			"IN",
+			"INDEX",
+			"INFILE",
+			"INNER",
+			"INOUT",
+			"INSENSITIVE",
+			"INSERT",
+			"INT",
+			"INT1",
+			"INT2",
+			"INT3",
+			"INT4",
+			"INT8",
+			"INTEGER",
+			"INTERVAL",
+			"INTO",
+			"IS",
+			"ITERATE",
+			"JOIN",
+			"KEY",
+			"KEYS",
+			"KILL",
+			"LEADING",
+			"LEAVE",
+			"LEFT",
+			"LIKE",
+			"LIMIT",
+			"LINEAR",
+			"LINES",
+			"LOAD",
+			"LOCALTIME",
+			"LOCALTIMESTAMP",
+			"LOCK",
+			"LONG",
+			"LONGBLOB",
+			"LONGTEXT",
+			"LOOP",
+			"LOW_PRIORITY",
+			"MASTER_HEARTBEAT_PERIOD[c]",
+			"MASTER_SSL_VERIFY_SERVER_CERT",
+			"MATCH",
+			"MAXVALUE",
+			"MEDIUMBLOB",
+			"MEDIUMINT",
+			"MEDIUMTEXT",
+			"MIDDLEINT",
+			"MINUTE_MICROSECOND",
+			"MINUTE_SECOND",
+			"MOD",
+			"MODIFIES",
+			"NATURAL",
+			"NOT",
+			"NO_WRITE_TO_BINLOG",
+			"NULL",
+			"NUMERIC",
+			"ON",
+			"OPTIMIZE",
+			"OPTION",
+			"OPTIONALLY",
+			"OR",
+			"ORDER",
+			"OUT",
+			"OUTER",
+			"OUTFILE",
+			"PRECISION",
+			"PRIMARY",
+			"PROCEDURE",
+			"PURGE",
+			"RANGE",
+			"READ",
+			"READS",
+			"READ_WRITE",
+			"REAL",
+			"REFERENCES",
+			"REGEXP",
+			"RELEASE",
+			"RENAME",
+			"REPEAT",
+			"REPLACE",
+			"REQUIRE",
+			"RESIGNAL",
+			"RESTRICT",
+			"RETURN",
+			"REVOKE",
+			"RIGHT",
+			"RLIKE",
+			"SCHEMA",
+			"SCHEMAS",
+			"SECOND_MICROSECOND",
+			"SELECT",
+			"SENSITIVE",
+			"SEPARATOR",
+			"SET",
+			"SHOW",
+			"SIGNAL",
+			"SLOW[d]",
+			"SMALLINT",
+			"SPATIAL",
+			"SPECIFIC",
+			"SQL",
+			"SQLEXCEPTION",
+			"SQLSTATE",
+			"SQLWARNING",
+			"SQL_BIG_RESULT",
+			"SQL_CALC_FOUND_ROWS",
+			"SQL_SMALL_RESULT",
+			"SSL",
+			"STARTING",
+			"STRAIGHT_JOIN",
+			"TABLE",
+			"TERMINATED",
+			"THEN",
+			"TINYBLOB",
+			"TINYINT",
+			"TINYTEXT",
+			"TO",
+			"TRAILING",
+			"TRIGGER",
+			"TRUE",
+			"UNDO",
+			"UNION",
+			"UNIQUE",
+			"UNLOCK",
+			"UNSIGNED",
+			"UPDATE",
+			"USAGE",
+			"USE",
+			"USING",
+			"UTC_DATE",
+			"UTC_TIME",
+			"UTC_TIMESTAMP",
+			"VALUES",
+			"VARBINARY",
+			"VARCHAR",
+			"VARCHARACTER",
+			"VARYING",
+			"WHEN",
+			"WHERE",
+			"WHILE",
+			"WITH",
+			"WRITE",
+			"XOR",
+			"YEAR_MONTH",
+			"ZEROFILL"
+		);
+
+		$word = strtoupper(trim($word));
+		if (in_array($word, $words))
+			return TRUE;
+		else
+			return FALSE;
 	}
 
 }
