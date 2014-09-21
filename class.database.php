@@ -375,6 +375,17 @@ class Database
 			// Write the "WHERE" portion of the query
 			if (count($this -> array_where) > 0)
 			{
+				/*
+				 * Bugfix #17. If nothing is provided as the where value then we assign it as no
+				 * value
+				 */
+				for ($i = 0; $i < count($this -> array_where); $i++)
+				{
+					if (!$this -> _has_operator($this -> array_where[$i]))
+					{
+						$this -> array_where[$i] = $this -> array_where[$i] . " = ''";
+					}
+				}
 				$this -> _query .= " WHERE ";
 				$this -> _query .= implode("\n", $this -> array_where);
 			}
