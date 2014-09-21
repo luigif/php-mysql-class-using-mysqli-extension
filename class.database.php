@@ -5,9 +5,9 @@
  * @category  Database Access
  * @package   Database
  * @author    Vivek V <vivekv@vivekv.com>
- * @copyright Copyright (c) 2013
+ * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3.4
+ * @version   1.4
  **/
 
 class Database
