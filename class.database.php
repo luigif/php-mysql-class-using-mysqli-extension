@@ -1079,6 +1079,22 @@ class Database
 		return $this;
 	}
 
+	/**
+	 * FIND IN SET
+	 *
+	 * Generates the FIND_IN_SET portion of the query
+	 *
+	 * @param string $search The search parameter
+	 * @param string $column The name of the column
+	 * @param string $type The connection keyword, AND or OR
+	 */
+	function findinset($search, $column, $type = 'AND ')
+	{
+  		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$this -> array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
+ 		return $this;
+	}
+
 	private function isReservedWord($word)
 	{
 		$words = array(
