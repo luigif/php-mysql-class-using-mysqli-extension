@@ -5,9 +5,9 @@
  * @category  Database Access
  * @package   Database
  * @author    Vivek V <vivekv@vivekv.com>
- * @copyright Copyright (c) 2013
+ * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.3.4
+ * @version   1.4.1
  **/
 
 class Database
@@ -375,6 +375,17 @@ class Database
 			// Write the "WHERE" portion of the query
 			if (count($this -> array_where) > 0)
 			{
+				/*
+				 * Bugfix #17. If nothing is provided as the where value then we assign it as no
+				 * value
+				 */
+				for ($i = 0; $i < count($this -> array_where); $i++)
+				{
+					if (!$this -> _has_operator($this -> array_where[$i]))
+					{
+						$this -> array_where[$i] = $this -> array_where[$i] . " = ''";
+					}
+				}
 				$this -> _query .= " WHERE ";
 				$this -> _query .= implode("\n", $this -> array_where);
 			}
@@ -1066,6 +1077,22 @@ class Database
 	{
 		$this -> _distinct = TRUE;
 		return $this;
+	}
+
+	/**
+	 * FIND IN SET
+	 *
+	 * Generates the FIND_IN_SET portion of the query
+	 *
+	 * @param string $search The search parameter
+	 * @param string $column The name of the column
+	 * @param string $type The connection keyword, AND or OR. Default is AND
+	 */
+	function findinset($search, $column, $type = 'AND ')
+	{
+  		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$this -> array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
+ 		return $this;
 	}
 
 	private function isReservedWord($word)
