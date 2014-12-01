@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.4.1
+ * @version   1.4.4
  **/
 
 class Database
