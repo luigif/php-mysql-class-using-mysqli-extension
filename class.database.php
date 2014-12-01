@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.4.1
+ * @version   1.4.4
  **/
 
 class Database
@@ -149,6 +149,15 @@ class Database
 			$this -> _query = filter_var($query, FILTER_SANITIZE_STRING);
 		else
 			$this -> _query = $query;
+		$this -> _executed = FALSE;
+		/*
+		 * Issue #7 bugfix. If the user entered a custom SQL Query, then we set executed
+		 * as FALSE always, so that the second query can be executed
+		 * https://bitbucket.org/getvivekv/php-mysqli-class/issue/7/error-in-fetch-after-an-executed-sql-query
+		 * Thanks NoXPhasma!
+		 *
+		 **/
+
 		return $this;
 	}
 
@@ -1080,7 +1089,7 @@ class Database
 	}
 
 	/**
-	 * FIND IN SET 
+	 * FIND IN SET
 	 * This function is used to generate a FIND_IN_SET query
 	 *
 	 * Generates the FIND_IN_SET portion of the query
@@ -1091,9 +1100,9 @@ class Database
 	 */
 	function find_in_set($search, $column, $type = 'AND ')
 	{
-  		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$prefix = (count($this -> array_where) == 0) ? '' : $type;
 		$this -> array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
- 		return $this;
+		return $this;
 	}
 
 	private function isReservedWord($word)
