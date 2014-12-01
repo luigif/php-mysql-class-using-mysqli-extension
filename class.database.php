@@ -1086,7 +1086,7 @@ class Database
 	 *
 	 * @param string $search The search parameter
 	 * @param string $column The name of the column
-	 * @param string $type The connection keyword, AND or OR
+	 * @param string $type The connection keyword, AND or OR. Default is AND
 	 */
 	function findinset($search, $column, $type = 'AND ')
 	{
