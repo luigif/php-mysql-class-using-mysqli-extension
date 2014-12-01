@@ -1089,7 +1089,7 @@ class Database
 	 * @param string $column The name of the column
 	 * @param string $type The connection keyword, AND or OR. Default is AND
 	 */
-	function findinset($search, $column, $type = 'AND ')
+	function find_in_set($search, $column, $type = 'AND ')
 	{
   		$prefix = (count($this -> array_where) == 0) ? '' : $type;
 		$this -> array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
