@@ -1080,7 +1080,8 @@ class Database
 	}
 
 	/**
-	 * FIND IN SET
+	 * FIND IN SET 
+	 * This function is used to generate a FIND_IN_SET query
 	 *
 	 * Generates the FIND_IN_SET portion of the query
 	 *
