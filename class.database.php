@@ -434,7 +434,7 @@ class Database
 		// Write the "OFFSET" portion of the query
 		if (isset($this -> _limit) && isset($this -> _offset))
 		{
-			$this -> _query .= ', ' . $this -> _offset;
+			$this -> _query .= ' OFFSET ' . $this -> _offset;
 		}
 
 		return $this;
