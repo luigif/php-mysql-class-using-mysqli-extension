@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.4.4
+ * @version   1.4.6
  **/
 
 class Database
@@ -1102,6 +1102,24 @@ class Database
 	{
 		$prefix = (count($this -> array_where) == 0) ? '' : $type;
 		$this -> array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
+		return $this;
+	}
+
+	/**
+	 * BETWEEN
+	 *
+	 * This function is used to generate a BETWEEN condition.
+	 *
+	 * @param string $experssion Expression parameter
+	 * @param string $value1 First value
+	 * @param string $value2 Second value
+	 * @param string $type Optional parameter. AND or OR
+	 *
+	 */
+	function between($expression, $value1, $value2, $type = 'AND ')
+	{
+		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$this -> array_where[] = "$prefix $expression BETWEEN '$value1' AND  '$value2'";
 		return $this;
 	}
 
