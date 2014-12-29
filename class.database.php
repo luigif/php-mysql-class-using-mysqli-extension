@@ -1105,6 +1105,24 @@ class Database
 		return $this;
 	}
 
+	/**
+	 * BETWEEN
+	 *
+	 * This function is used to generate a BETWEEN condition.
+	 *
+	 * @param string $experssion Expression parameter
+	 * @param string $value1 First value
+	 * @param string $value2 Second value
+	 * @param string $type Optional parameter. AND or OR
+	 *
+	 */
+	function between($expression, $value1, $value2, $type = 'AND ')
+	{
+		$prefix = (count($this -> array_where) == 0) ? '' : $type;
+		$this -> array_where[] = "$prefix $expression BETWEEN '$value1' AND  '$value2'";
+		return $this;
+	}
+
 	private function isReservedWord($word)
 	{
 		$words = array(
