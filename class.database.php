@@ -56,7 +56,6 @@ class Database
 	 */
 	var $array_where = array();
 	var $array_select = array();
-	var $array_like = array();
 	var $array_wherein = array();
 	var $array_groupby = array();
 	var $array_having = array();
@@ -110,7 +109,6 @@ class Database
 		$this -> _dryrun = FALSE;
 		$this -> array_where = array();
 		$this -> array_select = array();
-		$this -> array_like = array();
 		$this -> array_wherein = array();
 		$this -> array_groupby = array();
 		$this -> array_having = array();
@@ -661,7 +659,7 @@ class Database
 	}
 
 	/**
-	 * Builds $array_like
+	 * Builds _like
 	 */
 
 	protected function _like($title, $match, $place = 'both', $type)
@@ -677,8 +675,7 @@ class Database
 		}
 		else
 		{
-			$this -> array_like[] = $title;
-			$prefix = (count($this -> array_like) == 1) ? '' : $type;
+ 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
