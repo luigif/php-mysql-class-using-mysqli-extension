@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.4.6
+ * @version   1.4.7a
  **/
 
 class Database
@@ -675,7 +675,7 @@ class Database
 		}
 		else
 		{
- 			$prefix = (count($this -> array_where) == 0) ? '' : $type;
+			$prefix = (count($this -> array_where) == 0) ? '' : $type;
 			$match = $this -> escape($match);
 
 			if ($place == 'both')
@@ -835,6 +835,7 @@ class Database
 	public function where_in($key = NULL, $values = NULL)
 	{
 		$this -> _where_in($key, $values);
+		return $this;
 
 	}
 
