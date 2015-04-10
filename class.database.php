@@ -7,7 +7,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.1
+ * @version   1.5
  **/
 
 class Database
@@ -542,7 +542,7 @@ class Database
 	 */
 	public function fetch()
 	{
-		if ($this -> _executed == FALSE || !isset($this -> _query))
+		if ($this -> _executed == FALSE || !$this -> _query)
 			$this -> execute();
 
 		if (is_object($this -> _result))
@@ -573,7 +573,7 @@ class Database
 	 */
 	public function fetch_first()
 	{
-		if ($this -> _executed == FALSE || !isset($this -> _query))
+		if ($this -> _executed == FALSE || !$this -> _query)
 			$this -> execute();
 
 		if (is_object($this -> _result))
