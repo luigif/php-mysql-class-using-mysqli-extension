@@ -45,6 +45,7 @@ class Database
 	private $_distinct = FALSE;
 	protected $table_prefix;
 	private $_dryrun = FALSE;
+    private $_parenthesis = '';
 
 	/**
 	 * The table name used as FROM
@@ -179,6 +180,7 @@ class Database
 	 * @param $key array Can either be string or array.
 	 * @param $value string Optional. Need only if $key is a string..
 	 *
+     * @return Database
 	 */
 
 	public function where($key, $value = null)
@@ -193,6 +195,7 @@ class Database
 	 * @param $key array Can either be string or array.
 	 * @param $value string Optional. Need only if $key is a string..
 	 *
+     * * @return Database
 	 */
 
 	public function or_where($key, $value = null)
@@ -250,7 +253,20 @@ class Database
 			if ($this -> _has_operator($key))
 			{
 				if ($this -> isReservedWord($key) == true)
-					$this -> array_where[] = "$prefix`$key` '$value'";
+                {
+                    if(empty($this->_parenthesis))
+                        $this -> array_where[] = "$prefix`$key` '$value'";
+                    else
+                    {
+                        if($this->_parenthesis == ')')
+                            $this -> array_where[] = "$this->_parenthesis $prefix `$key` '$value'";
+                        else
+                            $this -> array_where[] = "$prefix $this->_parenthesis `$key` '$value'";
+                        $this -> _parenthesis = '';
+                    }
+
+                }
+
 				else
 					$this -> array_where[] = "$prefix$key '$value'";
 			}
@@ -258,15 +274,47 @@ class Database
 			else
 			{
 				if ($this -> isReservedWord($key) == true)
-					$this -> array_where[] = "$prefix`$key` = '$value'";
-				else
-					$this -> array_where[] = "$prefix$key = '$value'";
-			}
+                {
+                    if(empty($this->_parenthesis))
+                        $this -> array_where[] = "$prefix`$key` = '$value'";
+                    else
+                    {
+                        if($this->_parenthesis == ')')
+                            $this -> array_where[] = "$this->_parenthesis $prefix `$key` = '$value'";
+                        else
+                            $this -> array_where[] = "$prefix $this->_parenthesis `$key` = '$value'";
+                        $this -> _parenthesis = '';
+                    }
+                }
 
+				else
+                {
+                    if(empty($this->_parenthesis))
+                        $this -> array_where[] = "$prefix$key = '$value'";
+                    else
+                    {
+                        if($this->_parenthesis == ')')
+                            $this -> array_where[] = "$this->_parenthesis $prefix $key = '$value'";
+                        else
+                            $this -> array_where[] = "$prefix $this->_parenthesis $key = '$value'";
+                        $this -> _parenthesis = '';
+                    }
+                }
+
+			}
 		}
 		return $this;
 
 	}
+
+    function open_where()
+    {
+        $this -> _parenthesis = '(';
+    }
+    function close_where()
+    {
+        $this -> _parenthesis = ')';
+    }
 
 	/**
 	 * The SELECT portion of the query.
@@ -275,6 +323,7 @@ class Database
 	 * selected. If none provided, * will be assigned by default
 	 * @uses $db->select("id, email, password") ;
 	 * @uses $db->select(array('id', 'email', 'password')) ;
+     * * @return Database
 	 */
 
 	public function select($select = '*')
@@ -303,6 +352,7 @@ class Database
 	 * Sets the FROM portion of the query.
 	 *
 	 * @param $table string Name of the table.
+     * @return Database
 	 */
 	public function from($table)
 	{
@@ -395,6 +445,12 @@ class Database
 				}
 				$this -> _query .= " WHERE ";
 				$this -> _query .= implode("\n", $this -> array_where);
+                if($this -> _parenthesis)
+                {
+                    $this -> _query .= $this -> _parenthesis;
+                    $this -> _parenthesis = '';
+                }
+
 			}
 
 		}
@@ -597,6 +653,7 @@ class Database
 	 *
 	 * @param $table string Name of the table
 	 * @param $data string Array containing the data to be updated
+     * @return Database
 	 *
 	 */
 
@@ -632,6 +689,7 @@ class Database
 	 * portion
 	 * @param $place string This enables you to control where the wildcard (%) is
 	 * placed. Options are "both", "before", and "after". Default is "both"
+     * @return Database
 	 */
 
 	public function like($title, $match = null, $place = 'both')
@@ -650,6 +708,7 @@ class Database
 	 * portion
 	 * @param $place string This enables you to control where the wildcard (%) is
 	 * placed. Options are "both", "before", and "after". Default is "both"
+     * @return Database
 	 */
 
 	public function or_like($title, $match = null, $place = 'both')
@@ -902,6 +961,7 @@ class Database
 	 * Group by
 	 *
 	 * @param string or array $by Either an arry
+     * @return Database
 	 */
 
 	public function group_by($by)
@@ -1028,6 +1088,7 @@ class Database
 	 *
 	 * @param string $table Name of the table from where the values to be deleted. It
 	 * is optional. If value is not given then the value set by from() will be taken
+     * @return Database
 	 */
 
 	public function delete($table = null)
@@ -1043,6 +1104,7 @@ class Database
 	 * Set table prefix
 	 *
 	 * @param string $prefix The prefix of the table. For eg. tbl_
+     * @return Database
 	 */
 
 	public function set_table_prefix($prefix)
@@ -1062,6 +1124,7 @@ class Database
 	 * @param	string $condition Condition of join
 	 * @param	string $type Type of join. Example 'LEFT', 'RIGHT', 'OUTER', 'INNER',
 	 * 'LEFT OUTER', 'RIGHT OUTER'
+     * @return Database
 
 	 */
 	public function join($table, $condition, $type = null)
@@ -1094,6 +1157,7 @@ class Database
 	 * @param string $search The search parameter
 	 * @param string $column The name of the column
 	 * @param string $type The connection keyword, AND or OR. Default is AND
+     * @return Database
 	 */
 	function find_in_set($search, $column, $type = 'AND ')
 	{
@@ -1112,6 +1176,7 @@ class Database
 	 * @param string $value2 Second value
 	 * @param string $type Optional parameter. AND or OR
 	 *
+     * @return Database
 	 */
 	function between($expression, $value1, $value2, $type = 'AND ')
 	{
