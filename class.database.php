@@ -62,6 +62,7 @@ class Database
 	var $array_having = array();
 	var $array_orderby = array();
 	var $array_join = array();
+    var $debug_array = array();
 
 	public function __construct($host, $username, $password, $db, $port = NULL)
 	{
@@ -73,6 +74,7 @@ class Database
 			die($this -> oops('There was a problem connecting to the database'));
 		$this -> _mysqli -> set_charset('utf8');
 		self::$_instance = $this;
+        $this -> debug_array = array('host' => $host, 'username' => $username, 'database' => $db);
 	}
 
 	/**
@@ -664,7 +666,7 @@ class Database
 
 		foreach ($data as $key => $val)
 		{
-			if (strpos($val, '()') == true)
+			if (strpos($val, '()') == true OR is_numeric($val))
 				$valstr[] = "`$key`" . " = $val";
 			else
 				$valstr[] = "`$key`" . " = '$val'";
