@@ -28,17 +28,16 @@ class Database
     /**
      * Affected rows after a select/update/delete query
      */
-    var $affected_rows = 0;
+    public $affected_rows = 0;
     /**
      * Limit and offset
      */
     private $_limit;
     private $_offset;
     private $_result;
-    var $error = '';
-    var $debug = true;
-    var $die_on_error = true;
-    // Script execution will stop if set to TRUE. Default is TRUE ;
+    public $error = '';
+    public $debug = true;
+    public $die_on_error = true; // Script execution will stop if set to TRUE. Default is TRUE ;
     private $_last_query = '';
     private $_executed = false;
     private $_delete = false;
@@ -50,19 +49,19 @@ class Database
     /**
      * The table name used as FROM
      */
-    var $_fromTable;
+    private $_fromTable;
 
     /**
      * Arrays
      */
-    var $array_where = array();
-    var $array_select = array();
-    var $array_wherein = array();
-    var $array_groupby = array();
-    var $array_having = array();
-    var $array_orderby = array();
-    var $array_join = array();
-    var $debug_array = array();
+    private $array_where = array();
+    private $array_select = array();
+    private $array_wherein = array();
+    private $array_groupby = array();
+    private $array_having = array();
+    private $array_orderby = array();
+    private $array_join = array();
+    private $debug_array = array();
 
     public function __construct($host, $username, $password, $db, $port = null)
     {
@@ -71,7 +70,7 @@ class Database
             $port = ini_get('mysqli.default_port');
         $this->_mysqli = @new mysqli($host, $username, $password, $db, $port);
         if (!$this->_mysqli)
-            die($this->oops('There was a problem connecting to the database'));
+            die($this->error('There was a problem connecting to the database'));
         $this->_mysqli->set_charset('utf8');
         self::$_instance = $this;
         $this->debug_array = array( 'host' => $host, 'username' => $username, 'database' => $db );
@@ -124,6 +123,8 @@ class Database
      *
      * @uses $db->limit(0,12); // Will list the first 12 rows
      * @uses $db->limit(1); // Will list the first 1 row.
+     *
+     * @return object Returns the current instance
      */
 
     public function limit($limit, $offset = null)
@@ -138,27 +139,19 @@ class Database
     /**
      * Executes raw sql query.
      *
-     * @param $query string The raw query
-     * @param $sanitize boolean If true is provided, the query will be sanitized.
-     * Default is False
+     * @param $query    string The raw query
+     * @param $sanitize boolean If true is provided, the query will be sanitized. Default is false
      *
      * @return object Returns the object. Use $db->fetch() to get the results array
      */
     public function query($query, $sanitize = false)
     {
         if ($sanitize == true)
-            $this->_query = filter_var($query, FILTER_SANITIZE_STRING);
+            $this->_query = filter_var($query, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
         else
             $this->_query = $query;
-        $this->_executed = false;
+        $this->_executed = false; // If the user entered a custom SQL Query, then we set executed as FALSE, so that the second query can be executed
 
-        /*
-         * Issue #7 bugfix. If the user entered a custom SQL Query, then we set executed
-         * as FALSE always, so that the second query can be executed
-         * https://bitbucket.org/getvivekv/php-mysqli-class/issue/7/error-in-fetch-after-an-executed-sql-query
-         * Thanks NoXPhasma!
-         *
-         **/
 
         return $this;
     }
@@ -167,8 +160,8 @@ class Database
      * Executes a raw query. This is same as query() function but it returns only the
      * first row as result.
      *
-     * @uses $db->query_first("SELECT * FROM table"); // Will product "SELECT * FROM
-     * table LIMIT 1"
+     * @uses $db->query_first("SELECT * FROM table");
+     *
      * @return object Returns the object. Use $db->fetch() to get the results array
      */
 
@@ -183,10 +176,13 @@ class Database
      * Sets the WHERE clause
      * Multiple instances are joined by AND
      *
-     * @param $key array Can either be string or array.
-     * @param $value string Optional. Need only if $key is a string..
+     * @param $key   array Can either be string or array.
+     * @param $value string Need only if $key is a string. (optional)
      *
-     * @return Database
+     * @uses $db->where('key', 'value');
+     * @uses $db->where(array('key' => 'value', 'key2' => 'value2'));
+     *
+     * @return object Returns the current instance
      */
 
     public function where($key, $value = null)
@@ -199,10 +195,10 @@ class Database
      * This function is identical to where() function except that multiple instances
      * are joined by OR
      *
-     * @param $key array Can either be string or array.
-     * @param $value string Optional. Need only if $key is a string..
+     * @param $key   array Can either be string or array.
+     * @param $value string Optional. Need only if $key is a string.
      *
-     * * @return Database
+     * @return object Returns the current instance.
      */
 
     public function or_where($key, $value = null)
@@ -213,23 +209,28 @@ class Database
     /**
      * Tests whether the string has an SQL operator
      *
-     * @param    string
-     * @return    bool
+     * @param    string $str The search string
+     *
+     * @return    bool Returns true if the string has an operator
      */
     function _has_operator($str)
     {
         $str = trim($str);
-        if (!preg_match("/(\s|<|>|!|=|is null|is not null)/i", $str)) {
+        if (!preg_match('/(\s|<|>|!|=|is null|is not null)/i', $str)) {
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Save WHERE as array for building the query
-     */
 
+    /**
+     * @param        $key The key
+     * @param        $value The value
+     * @param string $type Where type, can be AND or OR
+     *
+     * @return object $this Returns the current instance
+     */
     protected function _where($key, $value, $type = 'AND ')
     {
         /**
@@ -238,7 +239,6 @@ class Database
 
         if (!is_array($key) AND is_null($value)) {
             $this->array_where[0] = $key;
-
             return $this;
         }
         /**
@@ -296,11 +296,18 @@ class Database
 
     }
 
+    /**
+     * Opens a paranthesis before key/value pair in a WHERE statement.
+     *
+     */
     function open_where()
     {
         $this->_parenthesis = '(';
     }
 
+    /**
+     * Closes a paranthesis before key/value pair in a WHERE statement.
+     */
     function close_where()
     {
         $this->_parenthesis = ')';
@@ -310,10 +317,12 @@ class Database
      * The SELECT portion of the query.
      *
      * @param $select Can either be a string or an array containing the columns to be
-     * selected. If none provided, * will be assigned by default
+     *                selected. If none provided, * will be assigned by default
+     *
      * @uses $db->select("id, email, password") ;
      * @uses $db->select(array('id', 'email', 'password')) ;
-     * * @return Database
+     *
+     * @return Database
      */
 
     public function select($select = '*')
@@ -329,7 +338,6 @@ class Database
                     $this->array_select[] = "`$val`";
                 else
                     $this->array_select[] = "$val";
-
             }
         }
 
@@ -340,7 +348,8 @@ class Database
      * Sets the FROM portion of the query.
      *
      * @param $table string Name of the table.
-     * @return Database
+     *
+     * @return object Returns the current instance
      */
     public function from($table)
     {
@@ -352,10 +361,12 @@ class Database
         return $this;
     }
 
-    /**
-     * Build the query string
-     */
 
+    /**
+     * Builds the query string
+     *
+     * @return $this
+     */
     private function prepare()
     {
 
@@ -375,13 +386,16 @@ class Database
                 }
             }
 
-            // If delete() is set, then the function is a delete function.
+            // If delete() is set, then the query is a DELETE query
 
             if ($this->_delete == true) {
                 // If the query is to delete row(s), make sure we have the table name.
                 if ($this->_fromTable == null) {
-                    $this->oops('Table Name is required for delete function');
+                    $this->error('Table Name is required for delete function');
                 }
+                // Safeguard. If WHERE is not given then do not proceed
+                if(count($this->array_where) == 0 AND count($this->array_wherein) == 0  )
+                    $this->error('WHERE condition is required for DELETE query');
                 $this->_query = 'DELETE';
             }
 
@@ -465,21 +479,23 @@ class Database
 
     }
 
-    /**
-     * Dry Run function allows the developer to view the full query before its
-     * execution.
-     */
 
+    /**
+     * Dry Run function allows the developer to view the full query before it is executed
+     *
+     * @return object Returns the current instance
+     */
     public function dryrun()
     {
         $this->_dryrun = true;
-
         return $this;
     }
 
     /**
      * Execute the query. This function returns the object. For getting the result of
      * the execution use fetch();
+     *
+     * @return object Returns the current instance
      */
 
     public function execute()
@@ -490,13 +506,12 @@ class Database
             $this->reset();
             $this->_query = $q;
             $this->_dryrun = true;
-
             return $this;
         }
 
         $this->_result = $this->_mysqli->query($this->_query);
         if (!$this->_result)
-            $this->oops();
+            $this->error();
 
         $this->affected_rows = $this->_mysqli->affected_rows;
         $this->_last_query = $this->_query;
@@ -530,13 +545,15 @@ class Database
 
             return $results;
         } else {
-            $this->oops('Unable to perform fetch()');
+            $this->error('Unable to perform fetch()');
         }
 
     }
 
     /**
      * Fetches the first row of the result
+     *
+     * @return array Returns an array of result
      */
     public function fetch_first()
     {
@@ -546,23 +563,26 @@ class Database
         if (is_object($this->_result)) {
             $this->_executed = false;
             $results = $this->_result->fetch_array(MYSQLI_ASSOC);
-
             return $results;
         } else {
-            $this->oops('Unable to perform fetch_first()');
+            $this->error('Unable to perform fetch_first()');
         }
     }
 
+    /**
+     * This is an alias function for fetch_first()
+     *
+     * @return array
+     */
     public function fetch_array()
     {
         return $this->fetch_first();
     }
 
     /**
-     * This function returns the last build query. Useful for troubleshooting the
-     * code.
+     * This function returns the last query. Useful for troubleshooting the code.
      *
-     * @return string Last query, exmaple : "SELECT * FROM table"
+     * @return string Last query
      */
     public function last_query()
     {
@@ -576,6 +596,7 @@ class Database
      * Remove dangerous input
      *
      * @param string $string The string needs to be sanitized
+     *
      * @return string Returns the sanitized string
      */
     public function escape($string)
@@ -590,8 +611,8 @@ class Database
      * Inserts data into table.
      *
      * @param string $table Name of the table
-     * @param array $data The array which contains the coulumn name and values to be
-     * inserted.
+     * @param array  $data  The array which contains the coulumn name and values to be
+     *                      inserted.
      *
      * @return integer Returns the inserted id. ( mysqli->insert_id)
      */
@@ -603,7 +624,7 @@ class Database
 
         foreach ($data as $key => $value) {
             $keys[] = "`$key`";
-            if (strpos($value, '()') == true)
+            if (strpos($value, '()') == true OR is_numeric($value))
                 $values[] = "$value";
             else
                 $values[] = "'$value'";
@@ -615,16 +636,29 @@ class Database
     }
 
     /**
-     * Update query. Use where() if needed. Call execute() to execute the query
+     * Update query. Must provider where() before calling this query.
      *
      * @param $table string Name of the table
-     * @param $data string Array containing the data to be updated
+     * @param $data  string Array containing the data to be updated
+     * @param $skipWhere bool If set to false which is default, the
+     *                   UPDATE query will stop if WHERE clause is
+     *                   not provided. This is for security reasons
+     *                   as UPDATE query can be dangerouse if WHERE
+     *                   condition is not provided. To skip this
+     *                   check, set this as TRUE
+     *
      * @return Database
      *
      */
 
-    public function update($table, $data)
+    public function update($table, $data, $skipWhere = false )
     {
+        if(count($this->array_wherein) == 0 AND count($this->array_where) == 0 AND $skipWhere == false )
+        {
+            $this->error('You must provider WHERE clause for UPDATE query. Add "false" as the 3rd parameter on UPDATE() to skip this.');
+            return $this ;
+        }
+
         if (isset($this->table_prefix))
             $table = $this->table_prefix . $table;
 
@@ -646,21 +680,21 @@ class Database
     }
 
     /**
-     * Permits to write the LIKE portion of the query using the connector AND
+     * Write the LIKE portion of the query using the connector AND
      *
      * @param $title string or array Can either be a string or array. This is the
-     * title portion of LIKE
+     *               title portion of LIKE
      * @param $match string Required only if $title is a string. This is the matching
-     * portion
+     *               portion
      * @param $place string This enables you to control where the wildcard (%) is
-     * placed. Options are "both", "before", and "after". Default is "both"
-     * @return Database
+     *               placed. Options are "both", "before", and "after". Default is "both"
+     *
+     * @return object Returns the current instance
      */
 
     public function like($title, $match = null, $place = 'both')
     {
         $this->_like($title, $match, $place, 'AND ');
-
         return $this;
 
     }
@@ -669,23 +703,25 @@ class Database
      * Permits to write the LIKE portion of the query using the connector OR
      *
      * @param $title string or array Can either be a string or array. This is the
-     * title portion of LIKE
+     *               title portion of LIKE
      * @param $match string Required only if $title is a string. This is the matching
-     * portion
+     *               portion
      * @param $place string This enables you to control where the wildcard (%) is
-     * placed. Options are "both", "before", and "after". Default is "both"
-     * @return Database
+     *               placed. Options are "both", "before", and "after". Default is "both"
+     *
+     * @return object Returns the current instance
      */
 
     public function or_like($title, $match = null, $place = 'both')
     {
         $this->_like($title, $match, $place, 'OR ');
-
         return $this;
     }
 
     /**
      * Builds _like
+     *
+     * @return object Returns the current instance
      */
 
     protected function _like($title, $match, $place = 'both', $type)
@@ -734,7 +770,11 @@ class Database
 
     }
 
-    private function oops($msg = null)
+    /**
+     * Through an error message
+     * @param null $msg
+     */
+    private function error($msg = null)
     {
         // If debug is not enabled, do not proceed
         if (!$this->debug)
@@ -751,7 +791,6 @@ class Database
 
         if (!empty($this->error))
             echo '<tr><td align="right" valign="top" nowrap>MySQL Error:</td><td>' . $this->error . '</td></tr>';
-        echo '<tr><td align="right">Date:</td><td>' . date("l, F j, Y \a\\t g:i:s A") . '</td></tr>';
         if (!empty($this->_query))
             echo '<tr><td align="right">Query:</td><td>' . $this->_query . '</td></tr>';
 
@@ -773,6 +812,11 @@ class Database
      *
      * Writes a "SELECT MAX(field)" portion for your query. You can optionally
      * include a second parameter to rename the resulting field.
+     *
+     * @param string $field The field name
+     * @param string $name AS field
+     *
+     * @return object Returns the current instance
      */
 
     public function select_max($field, $name = null)
@@ -792,6 +836,8 @@ class Database
      *
      * Writes a "SELECT MIN(field)" portion for your query. You can optionally
      * include a second parameter to rename the resulting field.
+     *
+     * @return object Returns the current instance
      */
 
     public function select_min($field, $name = null)
@@ -812,6 +858,8 @@ class Database
      *
      * Writes a "SELECT AVG(field)" portion for your query. You can optionally
      * include a second parameter to rename the resulting field.
+     *
+     * @return object Returns the current instance
      */
 
     public function select_avg($field, $name = null)
@@ -832,6 +880,8 @@ class Database
      *
      * Writes a "SELECT SUM(field)" portion for your query. You can optionally
      * include a second parameter to rename the resulting field.
+     *
+     * @return object Returns the current instance
      */
 
     public function select_sum($field, $name = null)
@@ -894,6 +944,8 @@ class Database
      * WHERE IN process
      *
      * Called by where_in, where_in_or, where_not_in, where_not_in_or
+     *
+     * @return object Returns the current instance
      */
     protected function _where_in($key = null, $values = null, $not = false, $type = 'AND ')
     {
@@ -923,7 +975,8 @@ class Database
      * Group by
      *
      * @param string or array $by Either an arry
-     * @return Database
+     *
+     * @return object Returns the current instance
      */
 
     public function group_by($by)
@@ -954,7 +1007,8 @@ class Database
      *
      * @param    string
      * @param    string
-     * @return    object
+     *
+     * @return object Returns the current instance
      */
     public function having($key, $value = '')
     {
@@ -970,7 +1024,8 @@ class Database
      *
      * @param    string
      * @param    string
-     * @return    object
+     *
+     * @return object Returns the current instance
      */
     public function or_having($key, $value = '')
     {
@@ -986,7 +1041,8 @@ class Database
      *
      * @param    string
      * @param    string
-     * @return    object
+     *
+     * @return object Returns the current instance
      */
     protected function _having($key, $value = '', $type = 'AND ')
     {
@@ -1010,6 +1066,7 @@ class Database
 
     /**
      * ORDER By clause
+     * @return object Returns the current instance
      */
 
     public function order_by($orderby, $direction = null)
@@ -1042,8 +1099,9 @@ class Database
      * Delete function
      *
      * @param string $table Name of the table from where the values to be deleted. It
-     * is optional. If value is not given then the value set by from() will be taken
-     * @return Database
+     *                      is optional. If value is not given then the value set by from() will be taken
+     *
+     * @return object Returns the current instance
      */
 
     public function delete($table = null)
@@ -1060,7 +1118,8 @@ class Database
      * Set table prefix
      *
      * @param string $prefix The prefix of the table. For eg. tbl_
-     * @return Database
+     *
+     * @return object Returns the current instance
      */
 
     public function set_table_prefix($prefix)
@@ -1076,11 +1135,12 @@ class Database
      *
      * Generates the JOIN portion of the query
      *
-     * @param    string $table Table for joining
+     * @param    string $table     Table for joining
      * @param    string $condition Condition of join
-     * @param    string $type Type of join. Example 'LEFT', 'RIGHT', 'OUTER', 'INNER',
-     * 'LEFT OUTER', 'RIGHT OUTER'
-     * @return Database
+     * @param    string $type      Type of join. Example 'LEFT', 'RIGHT', 'OUTER', 'INNER',
+     *                             'LEFT OUTER', 'RIGHT OUTER'
+     *
+     * @return object Returns the current instance
      */
     public function join($table, $condition, $type = null)
     {
@@ -1096,12 +1156,13 @@ class Database
 
     /**
      * Set a flag for DISTINCT keyword
+     *
+     * @return object Returns the current instance
      */
 
     public function distinct()
     {
         $this->_distinct = true;
-
         return $this;
     }
 
@@ -1113,14 +1174,14 @@ class Database
      *
      * @param string $search The search parameter
      * @param string $column The name of the column
-     * @param string $type The connection keyword, AND or OR. Default is AND
-     * @return Database
+     * @param string $type   The connection keyword, AND or OR. Default is AND
+     *
+     * @return object Returns the current instance
      */
     function find_in_set($search, $column, $type = 'AND ')
     {
         $prefix = (count($this->array_where) == 0) ? '' : $type;
         $this->array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
-
         return $this;
     }
 
@@ -1130,20 +1191,25 @@ class Database
      * This function is used to generate a BETWEEN condition.
      *
      * @param string $experssion Expression parameter
-     * @param string $value1 First value
-     * @param string $value2 Second value
-     * @param string $type Optional parameter. AND or OR
+     * @param string $value1     First value
+     * @param string $value2     Second value
+     * @param string $type       Optional parameter. AND or OR
      *
-     * @return Database
+     * @return object Returns the current instance
      */
     function between($expression, $value1, $value2, $type = 'AND ')
     {
         $prefix = (count($this->array_where) == 0) ? '' : $type;
         $this->array_where[] = "$prefix $expression BETWEEN '$value1' AND  '$value2'";
-
         return $this;
     }
 
+    /**
+     * Checks whether the given word is a MySQL reserved word
+     * @param $word
+     *
+     * @return bool
+     */
     private function isReservedWord($word)
     {
         $words = array(
