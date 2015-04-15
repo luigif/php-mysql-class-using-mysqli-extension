@@ -8,7 +8,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2014
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.1
+ * @version   1.5.1a
  **/
 class Database
 {
@@ -225,9 +225,9 @@ class Database
 
 
     /**
-     * @param        $key The key
+     * @param        $key   The key
      * @param        $value The value
-     * @param string $type Where type, can be AND or OR
+     * @param string $type  Where type, can be AND or OR
      *
      * @return object $this Returns the current instance
      */
@@ -239,6 +239,7 @@ class Database
 
         if (!is_array($key) AND is_null($value)) {
             $this->array_where[0] = $key;
+
             return $this;
         }
         /**
@@ -394,7 +395,7 @@ class Database
                     $this->error('Table Name is required for delete function');
                 }
                 // Safeguard. If WHERE is not given then do not proceed
-                if(count($this->array_where) == 0 AND count($this->array_wherein) == 0  )
+                if (count($this->array_where) == 0 AND count($this->array_wherein) == 0)
                     $this->error('WHERE condition is required for DELETE query');
                 $this->_query = 'DELETE';
             }
@@ -488,6 +489,7 @@ class Database
     public function dryrun()
     {
         $this->_dryrun = true;
+
         return $this;
     }
 
@@ -506,6 +508,7 @@ class Database
             $this->reset();
             $this->_query = $q;
             $this->_dryrun = true;
+
             return $this;
         }
 
@@ -563,6 +566,7 @@ class Database
         if (is_object($this->_result)) {
             $this->_executed = false;
             $results = $this->_result->fetch_array(MYSQLI_ASSOC);
+
             return $results;
         } else {
             $this->error('Unable to perform fetch_first()');
@@ -638,8 +642,8 @@ class Database
     /**
      * Update query. Must provider where() before calling this query.
      *
-     * @param $table string Name of the table
-     * @param $data  string Array containing the data to be updated
+     * @param $table     string Name of the table
+     * @param $data      string Array containing the data to be updated
      * @param $skipWhere bool If set to false which is default, the
      *                   UPDATE query will stop if WHERE clause is
      *                   not provided. This is for security reasons
@@ -651,12 +655,12 @@ class Database
      *
      */
 
-    public function update($table, $data, $skipWhere = false )
+    public function update($table, $data, $skipWhere = false)
     {
-        if(count($this->array_wherein) == 0 AND count($this->array_where) == 0 AND $skipWhere == false )
-        {
+        if (count($this->array_wherein) == 0 AND count($this->array_where) == 0 AND $skipWhere == false) {
             $this->error('You must provider WHERE clause for UPDATE query. Add "false" as the 3rd parameter on UPDATE() to skip this.');
-            return $this ;
+
+            return $this;
         }
 
         if (isset($this->table_prefix))
@@ -695,6 +699,7 @@ class Database
     public function like($title, $match = null, $place = 'both')
     {
         $this->_like($title, $match, $place, 'AND ');
+
         return $this;
 
     }
@@ -715,6 +720,7 @@ class Database
     public function or_like($title, $match = null, $place = 'both')
     {
         $this->_like($title, $match, $place, 'OR ');
+
         return $this;
     }
 
@@ -771,7 +777,8 @@ class Database
     }
 
     /**
-     * Through an error message
+     * Throw an error message
+     *
      * @param null $msg
      */
     private function error($msg = null)
@@ -814,7 +821,7 @@ class Database
      * include a second parameter to rename the resulting field.
      *
      * @param string $field The field name
-     * @param string $name AS field
+     * @param string $name  AS field
      *
      * @return object Returns the current instance
      */
@@ -1066,6 +1073,7 @@ class Database
 
     /**
      * ORDER By clause
+     *
      * @return object Returns the current instance
      */
 
@@ -1163,6 +1171,7 @@ class Database
     public function distinct()
     {
         $this->_distinct = true;
+
         return $this;
     }
 
@@ -1182,6 +1191,7 @@ class Database
     {
         $prefix = (count($this->array_where) == 0) ? '' : $type;
         $this->array_where[] = "$prefix FIND_IN_SET ('$search', $column) ";
+
         return $this;
     }
 
@@ -1201,30 +1211,33 @@ class Database
     {
         $prefix = (count($this->array_where) == 0) ? '' : $type;
         $this->array_where[] = "$prefix $expression BETWEEN '$value1' AND  '$value2'";
+
         return $this;
     }
 
     /**
-     * An alias to multiple functions. This will return the rows from a table. If limit parameter is not provided then it
-     * will list all the rows from the table
+     * An alias to multiple functions. This will return the rows from a table. If limit parameter is not provided then
+     * it will list all the rows from the table
      *
-     * @param string $table Name of the table
-     * @param null $limit The number of rows that you want to get
-     * @param null $offset The offset.
+     * @param string $table  Name of the table
+     * @param null   $limit  The number of rows that you want to get
+     * @param null   $offset The offset.
      *
      * @return array An associative array of result
      */
-    function get($table, $limit = null, $offset =null )
+    function get($table, $limit = null, $offset = null)
     {
-        if($limit)
+        if ($limit)
             $this->limit($limit);
-        if($offset)
-            if($this->limit($limit, $offset));
+        if ($offset)
+            if ($this->limit($limit, $offset)) ;
+
         return $this->from($table)->fetch();
     }
 
     /**
      * Checks whether the given word is a MySQL reserved word
+     *
      * @param $word
      *
      * @return bool
