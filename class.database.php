@@ -1205,6 +1205,25 @@ class Database
     }
 
     /**
+     * An alias to multiple functions. This will return the rows from a table. If limit parameter is not provided then it
+     * will list all the rows from the table
+     *
+     * @param string $table Name of the table
+     * @param null $limit The number of rows that you want to get
+     * @param null $offset The offset.
+     *
+     * @return array An associative array of result
+     */
+    function get($table, $limit = null, $offset =null )
+    {
+        if($limit)
+            $this->limit($limit);
+        if($offset)
+            if($this->limit($limit, $offset));
+        return $this->from($table)->fetch();
+    }
+
+    /**
      * Checks whether the given word is a MySQL reserved word
      * @param $word
      *
