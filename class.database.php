@@ -6,9 +6,9 @@
  * @category  Database Access
  * @package   Database
  * @author    Vivek V <vivekv@vivekv.com>
- * @copyright Copyright (c) 2014
+ * @copyright Copyright (c) 2015
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.2
+ * @version   1.5.3
  **/
 class Database
 {
@@ -304,6 +304,7 @@ class Database
     function open_where()
     {
         $this->_parenthesis = '(';
+        return $this;
     }
 
     /**
@@ -312,6 +313,7 @@ class Database
     function close_where()
     {
         $this->_parenthesis = ')';
+        return $this;
     }
 
     /**
