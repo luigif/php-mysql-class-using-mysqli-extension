@@ -8,7 +8,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2015
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.3
+ * @version   1.5.4
  **/
 class Database
 {
@@ -1236,6 +1236,15 @@ class Database
             if ($this->limit($limit, $offset)) ;
 
         return $this->from($table)->fetch();
+    }
+
+    /**
+     * Resets the WHERE clause. This is useful in some cases when the user wants to override the previously set WHERE conditions.
+     * @return $this
+     */
+    public function reset_where(){
+        $this->array_where = array();
+        return $this;
     }
 
     /**
