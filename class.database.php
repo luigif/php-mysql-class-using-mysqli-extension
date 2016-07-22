@@ -8,7 +8,7 @@
  * @author    Vivek V <vivekv@vivekv.com>
  * @copyright Copyright (c) 2015
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.4
+ * @version   1.5.4+
  **/
 class Database
 {
@@ -29,6 +29,7 @@ class Database
      * Affected rows after a select/update/delete query
      */
     public $affected_rows = 0;
+    
     /**
      * Limit and offset
      */
@@ -534,7 +535,7 @@ class Database
      */
     public function fetch()
     {
-        if ($this->_executed == false || !$this->_query)
+        if ($this->_executed == false || !isset($this->_query))
             $this->execute();
 
         if (is_object($this->_result)) {
@@ -562,7 +563,7 @@ class Database
      */
     public function fetch_first()
     {
-        if ($this->_executed == false || !$this->_query)
+        if ($this->_executed == false || !isset($this->_query))
             $this->execute();
 
         if (is_object($this->_result)) {
@@ -612,7 +613,22 @@ class Database
 
         return @$this->_mysqli->real_escape_string($string);
     }
+    
+    /**
+     * Inserts data into table and ignore.
+     *
+     * @param string $table Name of the table
+     * @param array  $data  The array which contains the coulumn name and values to be
+     *                      inserted.
+     *
+     * @return integer Returns the inserted id. ( mysqli->insert_id)
+     */
 
+    public function insert_ignore($table, $data)
+    {
+        return $this->insert($table, $data, 1);
+    }
+    
     /**
      * Inserts data into table.
      *
@@ -623,7 +639,7 @@ class Database
      * @return integer Returns the inserted id. ( mysqli->insert_id)
      */
 
-    public function insert($table, $data)
+    public function insert($table, $data, $ignore=0)
     {
         if (isset($this->table_prefixfix))
             $table = $this->table_prefix . $table;
@@ -635,7 +651,8 @@ class Database
             else
                 $values[] = "'$value'";
         }
-        $this->_query = "INSERT INTO " . $table . " (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $values) . ");";
+        $ignore_string = $ignore ? 'IGNORE ' : '';
+        $this->_query = "INSERT " . $ignore_string . "INTO " . $table . " (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $values) . ");";
         $this->execute();
 
         return $this->_mysqli->insert_id;
