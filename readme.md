@@ -5,4 +5,4 @@ Fixes some bugs and allows for improvements of original class.
 
 ## Documentation
 
-For full documentaton please refer [wiki](https://bitbucket.org/luigifi/php-mysqli-class/wiki/Home).
+For full documentaton please refer to the [wiki](https://bitbucket.org/luigifi/php-mysql-class-using-mysqli-extension/wiki/Home).
