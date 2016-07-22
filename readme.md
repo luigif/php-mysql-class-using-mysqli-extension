@@ -26,21 +26,18 @@ Once the class file is included, initialize it
 
 ```
 $db = new Database($host, $username, $password, $database);
-
 ```
 
 If your MySQL installation is using a non standard port, you can specify the port as 
 
 ```
 $db = new Database($host, $username, $password, $database, $port);
-
 ```
 
 If you are going to use a table prefix, you can assign it as 
 
 ```
 $db->set_table_prefix('wp_'); // Sets wp_ as table prefix
-
 ```
 
 
