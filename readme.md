@@ -1,4 +1,4 @@
-# Welcome
+# PHP mysqli class
 
 This is a fork of PHP MySQL class, which utilizes MySQLi.
 Fixes some bugs and allows for improvements of original class.
