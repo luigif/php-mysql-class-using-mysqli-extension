@@ -57,7 +57,6 @@ A query string can be generated in two ways
 ```
 $sql = "SELECT * FROM table" ;
 $db->query($sql) ;
-
 ```
 
 
@@ -83,7 +82,6 @@ $sql = "SELECT * FROM table";
 $db->query($sql)->execute() ;
 
 echo "Affected Rows : " . $db->affected_rows ;  // Outputs the affected rows
-
 ```
 
 ## Using Active Record Pattern
@@ -98,7 +96,6 @@ $db->select('title, content, date');
 
 $db->select('*');
 // Produces: SELECT *
-
 ```
 
 If you do not call the select() method, "SELECT *" will be assumed. If no parameter is given, select() will assume *
@@ -116,7 +113,6 @@ $db->distinct();
 
 ```
 $db->from('table') ; // Set the table name
-
 ```
 
 You can also chain the methods such as 
@@ -124,7 +120,6 @@ You can also chain the methods such as
 ```
 $db->select("id, email")->from('table') ;
 // Produces : SELECT id, email FROM table
-
 ```
 
 ## WHERE clause : $db->where()
@@ -134,7 +129,6 @@ The general syntax for where() is
 ```
 $db->where('a', 'b' ); 
 $db->where('c', 'd' ); 
-
 ```
 You can also feed an array as
 
@@ -162,7 +156,6 @@ $db->select()->from('table')->where($where) ;
 // You can also skip select() if you want. 
 $db->from('table')->where($where) ;
 // Produces: SELECT * FROM table WHERE name = 'test' AND email = 'email' 
-
 ```
 
 ## OR_WHERE clause : $db->or_where()
@@ -171,8 +164,6 @@ $db->from('table')->where($where) ;
 $db->where('name !=', $name);
 $db->or_where('id >', $id);
 // Produces: WHERE name != 'Joe' OR id > 50
-
-
 ```
 
 ## WHERE IN: $db->where_in()
@@ -183,7 +174,6 @@ Generates a WHERE field IN ('item', 'item') SQL query joined with AND if appropr
 $names = array('Frank', 'Todd', 'James');
 $db->where_in('username', $names);
 // Produces: WHERE username IN ('Frank', 'Todd', 'James')
-
 ```
 
 ## OR WHERE IN: $db->or_where_in()
@@ -309,9 +299,9 @@ $db->get('table');
 
 Get also takes Limit as the second parameter and Offset as the third parameter. These parameters are optional.
 
-``
+```
 $db->select('*')->from('table')->limit(1,2)->fetch();
-``
+```
 
 is equivalent to 
 
@@ -425,7 +415,6 @@ $this->select('id')->from('table')->where('name', 'test')->execute();
 echo $db->last_query();
 
 // Produces: SELECT id FROM table where name = 'test' ;
-
 ```
 
 
