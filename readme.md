@@ -1,6 +1,7 @@
 # Welcome
 
-This is a PHP MySQL class, which utilizes MySQLi.
+This is a fork of PHP MySQL class, which utilizes MySQLi.
+Fixes some bugs and allows for improvements of original class.
 
 ## Documentation
 
