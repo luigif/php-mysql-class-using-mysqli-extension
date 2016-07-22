@@ -5,10 +5,10 @@
  *
  * @category  Database Access
  * @package   Database
- * @author    Vivek V <vivekv@vivekv.com>
- * @copyright Copyright (c) 2015
+ * @author    Vivek V <vivekv@vivekv.com> (forked)
+ * @copyright Copyright (c) 2016
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   1.5.4+
+ * @version   1.5.5
  **/
 class Database
 {
