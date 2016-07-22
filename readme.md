@@ -1,6 +1,6 @@
 # PHP mysqli class
 
-This is a fork of PHP MySQL class, which utilizes MySQLi.
+This is a fork of a PHP MYSQL class, which uses mysqli extension.
 Fixes some bugs and allows for improvements of original class.
 
 It is inspired from the CodeIgniter php framework.
