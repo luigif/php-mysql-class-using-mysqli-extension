@@ -641,7 +641,7 @@ class Database
 
     public function insert($table, $data, $ignore=0)
     {
-        if (isset($this->table_prefixfix))
+        if (isset($this->table_prefix))
             $table = $this->table_prefix . $table;
 
         foreach ($data as $key => $value) {
