@@ -20,7 +20,6 @@ To use this class, import it to your project
 
 ```
 require_once 'class.database.php' ;
-
 ```
 
 Once the class file is included, initialize it
